@@ -1,17 +1,12 @@
 import React from 'react';
 
-import _prepareQueries from './prepareQueries';
+import prepareQueries from './prepareQueries';
 
-export default function connect(
-  Component,
-  {
-    queries,
-    prepareQueries = _prepareQueries,
-}) {
+export default function connect(Component, queries) {
   class LocusConnect extends React.Component {
     constructor(props, context) {
       super(props, context);
-      this.state = { loading: true };
+      this.state = {};
       this.loading = true;
       this.error = false;
       this.store = context.store;
@@ -19,19 +14,32 @@ export default function connect(
       /*
         TODO: if commands also have attached queries, when should they
         subscribe to the store?
-      */
-      /*
-        When the subscription is created/updated the queries are resolved
-      */
-      this.subscription = this.store.subscribe({
-        queries: prepareQueries(queries),
-        onChange: state => (this.setState({ state }), this.loading = false),
-        onError: error => (this.error = error),
-      });
+        TODO: somehow mark queries if they have sent a request to a remote store, so they don't have to be checked against previous queries again
+        TODO: can the store somehow prepare and return 'selector' functions so instead
+        of having to check if the query has already been cached it can just run the selector
+
+          TODO use a subscription object that returns a set of selectors to run
+          when data is needed from the store, when props change the subscription can be updated.
+        */
+      this.unsubscribe = this.store.subscribe(
+        () => this.fetch(props)
+      );
+    }
+
+    fetch(props) {
+      this.store.fetch(
+        prepareQueries(queries, props),
+        (error, results) => (
+          this.loading = false,
+          this.error = error,
+          this.setState(results)
+        )
+      );
     }
 
     componentWillUnmount() {
-      this.subscription.cancel();
+      // TODO is there a possibility of an error here? Need to try/catch? use a Error Monad?
+      this.unsubscribe();
     }
 
     // TODO should component update
@@ -41,9 +49,8 @@ export default function connect(
       // another possible optimization would be to create selector functions for the queries
       // TODO if query does not depend on props won't need to do this.
       // TODO would a deepEquals here be more efficient than running the queries again?
-      this.subscription.update({
-        queries: prepareQueries(queries, nextProps),
-      });
+      // TODO if we assume props were immutable data structures we could do a very fast equality check here
+      this.fetch(nextProps);
     }
 
     render() {
@@ -53,6 +60,7 @@ export default function connect(
       }
       else if (this.error) {
         // TODO allow custom error component
+        // TODO retry functionality? automatic? manual?
         return <div>There was an error loading...</div>;
       }
       else {
