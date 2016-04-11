@@ -22,16 +22,17 @@ export default function locus(/* schema, adapter*/) {
 
     fetch(queries, update) {
       const promisedQueries = entries(queries).map(([queryName, query]) => {
-        // Check if a pending query matches this query
-        // if (containsQuery(pendingQueries, query)) {
-        //   // Don't do anything, a remote request has already been made
-        //   // TODO: find promise for pending query and return
-        // }
+        // TODO might be possible to resolve queries async in a webworker
         if (containsQuery(cachedQueries, query)) {
           // The data requested by this query is already in the store/cache.
           // return Promise.resolve(resolveQuery(data, query));
           return Promise.resolve([{ name: 'cache' }]).then(value => ({ [queryName]: value }));
         }
+        // Check if a pending query matches this query
+        // if (containsQuery(pendingQueries, query)) {
+        //   // Don't do anything, a remote request has already been made
+        //   // TODO: find promise for pending query and return
+        // }
         else {
           // This query needs to be sent to the server
           // TODO this is where adapters for different backends would go?
