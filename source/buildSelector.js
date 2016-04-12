@@ -1,4 +1,6 @@
 import entries from 'object.entries';
+import pipe from 'lodash.flow';
+import curry from 'lodash.curry';
 
 
 export default function buildSelector(queries) {
@@ -9,17 +11,22 @@ export default function buildSelector(queries) {
   };
 }
 
-// TODO use compose
-function selectRecords(state, query) {
-  var targetRecords = state._locus_records[query.target]; // TODO knowledge of state structure
+const target = curry((target, recordGroups) => recordGroups[target]);
 
-  var selectedFieldsOfRecords = targetRecords.map(record => {
-    return query.select.reduce((fields, fieldName) => {
+const select = curry((selectedFields, records) => (
+  records.map(record => {
+    return selectedFields.reduce((fields, fieldName) => {
       return { [fieldName]: record[fieldName], ...fields };
     }, {});
-  });
+  })
+));
 
-  var limit = selectedFieldsOfRecords.slice(0, query.limit);
+const limit = curry((limit, records) => records.slice(0, limit));
 
-  return limit;
+function selectRecords(state, query) {
+  return pipe(
+    target(query.target),
+    select(query.select),
+    limit(query.limit)
+  )(state._locus_records);
 }
