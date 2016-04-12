@@ -15,10 +15,10 @@ const select = curry((selectedFields, records) => (
 
 const limit = curry((limit, records) => records.slice(0, limit));
 
-export default function selectRecords(state, query) {
+export default function selectRecords(recordsGroupedByType, query) {
   return pipe(
     target(query.target),
     select(query.select),
     limit(query.limit)
-  )(state._locus_records);
+  )(recordsGroupedByType);
 }

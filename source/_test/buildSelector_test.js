@@ -13,7 +13,7 @@ test('buildSelector', assert => {
     },
   };
 
-  const selector = buildSelector(queries);
+  const selector = buildSelector(queries, '_locus_records');
 
   const state = {
     _locus_records: {

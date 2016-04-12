@@ -29,7 +29,7 @@ export default function locusConnect(Component, queries) {
     setup(props) {
       var preparedQueries = prepareQueries(queries, props);
       this.resolveQueries(preparedQueries);
-      var selector = buildSelector(preparedQueries);
+      var selector = buildSelector(preparedQueries, '_locus_records');
       this.ConnectedComponent = reduxConnect(selector)(Component);
     }
 
