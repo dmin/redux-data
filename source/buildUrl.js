@@ -1,5 +1,6 @@
-export default function buildUrl(query, format) {
-  // TODO base URL
-  // TODO query options
-  return `/${query.target}.${format}`;
+export default function buildUrl(query, options) {
+
+  const format = options.format ? `.${options.format}` : '';
+
+  return `${options.baseUrl}/${options.names.collection}${format}`;
 }

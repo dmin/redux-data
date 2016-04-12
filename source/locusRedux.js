@@ -1,6 +1,12 @@
 /*
   TODO: need to validate queries against schema
   TODO: prevent passing in new queries (how would they do that?)
+  TODO: use a storeEnhancer to setup reducers, check for name colisions
+   - _locus_queries
+   - _locus_records
+   - _locus_schema
+
+  TODO: allow passing in a custom connect function (for use with redux-form)
 */
 
 import React from 'react';
@@ -50,7 +56,9 @@ export default function locusConnect(Component, queries) {
           return cachedOrPendingQuery;
         }
         else {
-          const url = buildUrl(query, 'json'); // TODO need format?
+          // TODO urlOptions assignment has way too much knowlege of how to find the schema and its stucture.
+          const urlOptions = this.store.getState()._locus_schema[query.target].remote;
+          const url = buildUrl(query, urlOptions); // TODO need format?
           const queryPromise = resolveRemoteQuery(url).then(data => {
             var records = data[query.target];
             this.store.dispatch({
