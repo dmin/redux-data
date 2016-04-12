@@ -7,6 +7,7 @@ test('selectRecords', assert => {
   const query = {
     target: 'items',
     select: ['name'],
+    offset: 1,
     limit: 3,
   };
 
@@ -36,9 +37,9 @@ test('selectRecords', assert => {
 
   const actual = selectRecords(recordsGroupedByType, query);
   const expected = [
-    { 'name': 'Receptacle' },
     { 'name': 'Switch' },
     { 'name': 'Bulb' },
+    { 'name': 'Plate' },
   ];
 
   assert.deepEqual(actual, expected, 'returns the properly filtered/mapped records');

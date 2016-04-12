@@ -13,12 +13,15 @@ const select = curry((selectedFields, records) => (
   })
 ));
 
+const offset = curry((offset, records) => records.slice(offset));
+
 const limit = curry((limit, records) => records.slice(0, limit));
 
 export default function selectRecords(recordsGroupedByType, query) {
   return pipe(
     target(query.target),
     select(query.select),
+    offset(query.offset),
     limit(query.limit)
   )(recordsGroupedByType);
 }
