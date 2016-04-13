@@ -56,17 +56,35 @@ export default function locusConnect(Component, queries) {
           return cachedOrPendingQuery;
         }
         else {
-          // TODO urlOptions assignment has way too much knowlege of how to find the schema and its stucture.
-          const urlOptions = this.store.getState()._locus_schema[query.target].remote;
-          const url = buildUrl(query, urlOptions); // TODO need format?
-          const queryPromise = resolveRemoteQuery(url).then(data => {
-            var records = data[query.target];
-            this.store.dispatch({
-              type: 'RECEIVE_REMOTE_RECORDS', // TODO
-              target: query.target,
-              records,
+          // TODO recordTypeRemoteOptions assignment has way too much knowlege of how to find the schema and its stucture.
+          const recordTypeRemoteOptions = this.store.getState()._locus_schema[query.target].remote;
+          const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
+          const queryPromise = resolveRemoteQuery(url)
+            // TODO what if we want to receive records of multiple types?
+            .then(responseBody => responseBody[recordTypeRemoteOptions.names.collection])
+            .then(records => (
+              records.map(record => {
+                // TODO how inefficient is this? time/space?
+                // can a function be created at build time to do this efficiently?
+                // would it be more efficient to create a new key and delete the old key, mutating the object?
+                return Object.entries(record).reduce((renamed, [key, value]) => {
+                  // TODO what if one of these options, like fields, doesn't exist?
+                  if (recordTypeRemoteOptions.names.fields[key]) {
+                    return { [recordTypeRemoteOptions.names.fields[key]]: value, ...renamed };
+                  }
+                  else {
+                    return { [key]: value, ...renamed };
+                  }
+                }, {});
+              })
+            ))
+            .then(records => {
+              this.store.dispatch({
+                type: 'RECEIVE_REMOTE_RECORDS',
+                target: query.target,
+                records,
+              });
             });
-          });
 
           // Adds query to list of pending/cached queries
           this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, queryPromise }); // TODO
