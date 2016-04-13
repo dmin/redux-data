@@ -16,7 +16,7 @@
     "react-dom": "^15.0.0",
     "react-redux": "^4.4.2",
     "redux": "^3.4.0",
-    "redux-thunk": "^2.0.1",
+    "redux-thunk": "^2.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
