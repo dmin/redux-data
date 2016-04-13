@@ -5,13 +5,17 @@ const target = curry(
   (target, recordsGroupedByType) => recordsGroupedByType[target]
 );
 
-const select = curry((selectedFields, records) => (
-  records.map(record => {
+const select = curry((selectedFields, records) => {
+  if (!selectedFields) {
+    return records;
+  }
+
+  return records.map(record => {
     return selectedFields.reduce((fields, fieldName) => {
       return { [fieldName]: record[fieldName], ...fields };
     }, {});
-  })
-));
+  });
+});
 
 const offset = curry((offset, records) => records.slice(offset));
 
