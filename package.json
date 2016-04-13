@@ -2,6 +2,9 @@
   "name": "@locus/locus",
   "version": "0.0.1",
   "description": "",
+  "files": [
+    "build/"
+  ],
   "main": "build/index.js",
   "scripts": {
     "babel": "babel source --watch --out-dir build"
@@ -10,7 +13,10 @@
   "license": "ISC",
   "peerDependencies": {
     "react": "^15.0.0",
-    "react-dom": "^15.0.0"
+    "react-dom": "^15.0.0",
+    "react-redux": "^4.4.2",
+    "redux": "^3.4.0",
+    "redux-thunk": "^2.0.1",
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
