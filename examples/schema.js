@@ -7,9 +7,10 @@ export default {
 
   items: {
     remote: {
+      rootKey: true, // TODO might be a string which is the name of the expected root key?
       names: {
         record: 'item',
-        collection: 'items',
+        collection: 'items', // TODO this is being used a root key of json server response for collections
       },
       baseUrl: '',
       format: 'json',
