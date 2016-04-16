@@ -7,11 +7,19 @@
    - _locus_schema
 
   TODO: allow passing in a custom connect function (for use with redux-form)
+
+  TODO: extract actions to constants
+
+  TODO: documentation might talk about dispatching actions to local or remote stores (and in the future there might be server side code to make this official)
+
+  TODO DEFINE:
+   - commands (description of mutation, does not need to be serializable)
+   - action - object which can be dispatched to redux
+   - action creator - function which creates action
 */
 
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
-import entries from 'object.entries';
 import prepareQueries from './prepareQueries';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
@@ -19,7 +27,7 @@ import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
 
-export default function locusConnect(Component, queries) {
+export default function locusConnect(Component, { commands = {}, queries = {} }) {
 
   class LocusConnect extends React.Component {
     constructor(props, context) {
@@ -34,10 +42,58 @@ export default function locusConnect(Component, queries) {
     }
 
     setup(props) {
+      this.commands = this.prepareCommands(commands, props);
+
       var preparedQueries = prepareQueries(queries, props);
       this.resolveQueries(preparedQueries);
       var selector = buildSelector(preparedQueries, '_locus_records');
-      this.ConnectedComponent = reduxConnect(selector)(Component);
+      this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
+    }
+
+    prepareCommands(commands, props) {
+      return Object.entries(commands).reduce((preparedCommands, [commandName, applyPropsToCommand]) => {
+        const command = applyPropsToCommand(props);
+
+        return {
+          [commandName]: data => this.executeCommand(command, data),
+          ...preparedCommands,
+        };
+      }, {});
+    }
+
+    executeCommand(command, data) {
+      // TODO this code knows a lot about how actions/commands are structured
+      const action = this.getSchemaAction(command.target, command.action);
+      // if optimistic do that here
+
+      // do remote
+      const { url, method, requestBody } = action.remote;
+      const remoteActionPromise = request(
+        url(data, this.props),
+        method,
+        requestBody(data, this.props)
+      );
+
+      // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
+      // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
+
+      remoteActionPromise.then(_ => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
+        this.store.dispatch({
+          // TODO this seems fragile
+          type: `LOCUS_${command.action.toUpperCase()}_RECORD`,
+          target: command.target,
+          data,
+          // TODO using something like redux-react-router could update the url here
+          // TODO using something like redux-react-router could update the url here
+        });
+
+        // TODO is this the best place for this?
+        command.then();
+      });
+      // TODO handle errors (http/validation) If remote action fails need rollback plan
+
+    }
+
     getSchemaAction(recordType, action) {
       return this.store.getState()._locus_schema[recordType].actions[action];
     }
@@ -105,6 +161,9 @@ export default function locusConnect(Component, queries) {
     }
 
     render() {
+      // TODO These states are for determining if all the 'required'
+      // queries have been resolved
+      // TODO implement 'defered' queries
       if (this.state.loading) {
         // TODO allow custom loading component
         return <div>Loading records...</div>;
@@ -116,7 +175,7 @@ export default function locusConnect(Component, queries) {
       }
       else {
         // TODO: check for props that conflict with data attributes
-        return <this.ConnectedComponent {...this.props} />; // TODO
+        return <this.ConnectedComponent {...this.props} {...this.commands} />; // TODO
       }
     }
   }
