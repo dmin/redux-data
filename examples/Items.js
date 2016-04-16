@@ -23,16 +23,30 @@ Items.propTypes = {
 
 // TODO need to handle mutations
 export default locusRedux(Items, {
-  items1: _props => ({
-    target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
-    select: ['id', 'name'],
-    offset: 6,
-    limit: 8,
-  }),
+  queries: {
+    // TODO function that validates format/options of queries against schema
+    // would be nice to use that function at both build and run time (in dev mode)
+    items1: _props => ({
+      target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
+      select: ['id', 'name'],
+      offset: 6,
+      limit: 8,
+    }),
 
-  items2: _props => ({
-    target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
-    select: ['id'],
-    limit: 4,
-  }),
+    items2: _props => ({
+      target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
+      select: ['id'],
+      limit: 4,
+    }),
+  },
+
+  // commands: {
+  //   updateItem: _props => ({
+  //     target: 'items',
+  //     action: 'update',
+  //     // TODO preset: {
+  //     //   id: props.params.id,
+  //     // },
+  //   }),
+  // },
 });
