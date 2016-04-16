@@ -37,6 +37,13 @@ export default function locusConnect(Component, queries) {
       this.resolveQueries(preparedQueries);
       var selector = buildSelector(preparedQueries, '_locus_records');
       this.ConnectedComponent = reduxConnect(selector)(Component);
+    getSchemaAction(recordType, action) {
+      return this.store.getState()._locus_schema[recordType].actions[action];
+    }
+
+    getRemoteOptions(recordType) {
+      // TODO can knowledge of the schema here somehow be reduced?
+      return this.store.getState()._locus_schema[recordType].remote;
     }
 
     // TODO dependency: requires _locus_pending/cachedQueries property on state
