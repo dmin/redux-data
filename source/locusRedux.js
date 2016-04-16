@@ -20,14 +20,14 @@
 
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
-import prepareQueries from './prepareQueries';
+import applyPropsToQueries from './applyPropsToQueries';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
 import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
 
-export default function locusConnect(Component, { commands = {}, queries = {} }) {
+export default function locusConnect(Component, { commands = {}, queries: queryCreators = {} }) {
 
   class LocusConnect extends React.Component {
     constructor(props, context) {
@@ -44,9 +44,9 @@ export default function locusConnect(Component, { commands = {}, queries = {} })
     setup(props) {
       this.commands = this.prepareCommands(commands, props);
 
-      var preparedQueries = prepareQueries(queries, props);
-      this.resolveQueries(preparedQueries);
-      var selector = buildSelector(preparedQueries, '_locus_records');
+      var queries = applyPropsToQueries(queryCreators, props);
+      this.resolveQueries(queries);
+      var selector = buildSelector(queries, '_locus_records');
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
     }
 
@@ -104,8 +104,8 @@ export default function locusConnect(Component, { commands = {}, queries = {} })
     }
 
     // TODO dependency: requires _locus_pending/cachedQueries property on state
-    resolveQueries(preparedQueries) {
-      const promisedQueries = Object.entries(preparedQueries).map(([_, query]) => {
+    resolveQueries(queries) {
+      const promisedQueries = Object.entries(queries).map(([_, query]) => {
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
