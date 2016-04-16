@@ -17,6 +17,7 @@ import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
 import request from './request';
 import buildUrl from './buildUrl';
+import processRemoteRecords from './processRemoteRecords';
 
 export default function locusConnect(Component, queries) {
 
@@ -48,7 +49,7 @@ export default function locusConnect(Component, queries) {
 
     // TODO dependency: requires _locus_pending/cachedQueries property on state
     resolveQueries(preparedQueries) {
-      const promisedQueries = entries(preparedQueries).map(([_, query]) => {
+      const promisedQueries = Object.entries(preparedQueries).map(([_, query]) => {
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
@@ -63,40 +64,27 @@ export default function locusConnect(Component, queries) {
           return cachedOrPendingQuery;
         }
         else {
-          // TODO recordTypeRemoteOptions assignment has way too much knowlege of how to find the schema and its stucture.
-          const recordTypeRemoteOptions = this.store.getState()._locus_schema[query.target].remote;
+          const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
           const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
-          const queryPromise = resolveRemoteQuery(url)
+          const recordsPromise = request(url, 'GET'); // TODO this is really just Jquery.getJSON - refactor to use fetch?
             // TODO what if we want to receive records of multiple types?
-            .then(responseBody => responseBody[recordTypeRemoteOptions.names.collection])
-            .then(records => (
-              records.map(record => {
-                // TODO how inefficient is this? time/space?
-                // can a function be created at build time to do this efficiently?
-                // would it be more efficient to create a new key and delete the old key, mutating the object?
-                return Object.entries(record).reduce((renamed, [key, value]) => {
-                  // TODO what if one of these options, like fields, doesn't exist?
-                  if (recordTypeRemoteOptions.names.fields[key]) {
-                    return { [recordTypeRemoteOptions.names.fields[key]]: value, ...renamed };
-                  }
-                  else {
-                    return { [key]: value, ...renamed };
-                  }
-                }, {});
-              })
-            ))
+
+          const processedRecordsPromise = processRemoteRecords(recordsPromise, recordTypeRemoteOptions.names.collection, recordTypeRemoteOptions.names.fields)
             .then(records => {
+
               this.store.dispatch({
-                type: 'RECEIVE_REMOTE_RECORDS',
+                type: 'LOCUS_RECEIVE_REMOTE_RECORDS',
                 target: query.target,
                 records,
               });
-            });
+            })
+            // TODO unless I catch errors, the promises will swallow all errors
+            .catch(e => console.log(e));
 
           // Adds query to list of pending/cached queries
-          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, queryPromise }); // TODO
+          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, processedRecordsPromise }); // TODO
 
-          return queryPromise;
+          return processedRecordsPromise;
         }
       });
 
