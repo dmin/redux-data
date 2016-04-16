@@ -11,11 +11,12 @@ export default {
       names: {
         record: 'item',
         collection: 'items', // TODO this is being used a root key of json server response for collections
+        fields: {},
       },
       baseUrl: '',
       format: 'json',
-      parseCollectionResponse: response => response.items, // TODO default
-      parseRecordResponse: response => response.item, // TODO default
+      parseCollectionResponse: response => response.items, // TODO default, translates field names
+      parseRecordResponse: response => response.item, // TODO default, translates field names
       capabilities: {
         offset: true,
         limit: true, // TODO what should be default? TODO: what if server doesn't accept option, but always limits number of results?
@@ -27,8 +28,21 @@ export default {
       { name: String },
     ],
 
+    // TODO: should 'adapters' be able to define these?
     actions: {
+      update: {
+        // TODO local: allow users to override default local actions for create/update/delete, but warn when they do.
+        // TODO move this
+        // local: (recordType, recordFields) => ({ type: 'LOCUS_UPDATE_RECORD', recordType, recordFields }),
 
+        remote: {
+          method: 'PATCH', // TODO or PUT?
+          url: (_data, props) => `/categories/${props.params.id}.json`,
+          requestBody: (data, _props) => ({ item: data }), // TODO should there be a default for this? Should 'adapters' define this?
+          // TODO expected response
+          // TODO allows query?
+        },
+      },
     },
 
     // TODO handle responses, what json shape is expected?
