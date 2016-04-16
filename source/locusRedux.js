@@ -27,7 +27,7 @@ import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
 
-export default function locusConnect(Component, { commands = {}, queries: queryCreators = {} }) {
+export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryCreators = {} }) {
 
   class LocusConnect extends React.Component {
     constructor(props, context) {
@@ -42,7 +42,7 @@ export default function locusConnect(Component, { commands = {}, queries: queryC
     }
 
     setup(props) {
-      this.commands = this.prepareCommands(commands, props);
+      this.commands = this.applyPropsToCommands(commandDescriptors, props);
 
       var queries = applyPropsToQueries(queryCreators, props);
       this.resolveQueries(queries);
@@ -50,13 +50,13 @@ export default function locusConnect(Component, { commands = {}, queries: queryC
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
     }
 
-    prepareCommands(commands, props) {
-      return Object.entries(commands).reduce((preparedCommands, [commandName, applyPropsToCommand]) => {
+    applyPropsToCommands(commandDescriptors, props) {
+      return Object.entries(commandDescriptors).reduce((commands, [commandName, applyPropsToCommand]) => {
         const command = applyPropsToCommand(props);
 
         return {
           [commandName]: data => this.executeCommand(command, data),
-          ...preparedCommands,
+          ...commands,
         };
       }, {});
     }
