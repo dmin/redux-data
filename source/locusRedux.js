@@ -15,7 +15,7 @@ import entries from 'object.entries';
 import prepareQueries from './prepareQueries';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
-import resolveRemoteQuery from './resolveRemoteQuery';
+import request from './request';
 import buildUrl from './buildUrl';
 
 export default function locusConnect(Component, queries) {
