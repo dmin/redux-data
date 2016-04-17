@@ -81,7 +81,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         });
 
         // TODO is this the best place for this?
-        command.then();
+        command.then ? command.then() : undefined;
       });
       // TODO handle errors (http/validation) If remote action fails need rollback plan
 
