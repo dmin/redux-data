@@ -20,14 +20,14 @@
 
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
-import applyPropsToQueries from './applyPropsToQueries';
+import applyPropsToOperations from './applyPropsToOperations';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
 import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
 
-export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryCreators = {} }) {
+export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryDescriptors = {} }) {
 
   class LocusConnect extends React.Component {
     constructor(props, context) {
@@ -42,23 +42,16 @@ export default function locusConnect(Component, { commands: commandDescriptors =
     }
 
     setup(props) {
-      this.commands = this.applyPropsToCommands(commandDescriptors, props);
+      this.commands = applyPropsToOperations(
+        commandDescriptors,
+        props,
+        command => data => this.executeCommand(command, data)
+      );
 
-      var queries = applyPropsToQueries(queryCreators, props);
+      var queries = applyPropsToOperations(queryDescriptors, props);
       this.resolveQueries(queries);
       var selector = buildSelector(queries, '_locus_records');
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
-    }
-
-    applyPropsToCommands(commandDescriptors, props) {
-      return Object.entries(commandDescriptors).reduce((commands, [commandName, applyPropsToCommand]) => {
-        const command = applyPropsToCommand(props);
-
-        return {
-          [commandName]: data => this.executeCommand(command, data),
-          ...commands,
-        };
-      }, {});
     }
 
     executeCommand(command, data) {
