@@ -34,10 +34,6 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       super(props, context);
       this.state = { loading: true, error: false };
       this.store = context.store;
-
-      // this.unsubscribe = this.store.subscribe();
-      // TODO check if store actually changed.
-
       this.setup(props);
     }
 
@@ -142,12 +138,8 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         .catch(error => this.setState({ error }));
     }
 
-    componentWillUnmount() {
-      // TODO is there a possibility of an error here? Need to try/catch? use a Error Monad?
-      // this.unsubscribe();
-    }
-
     // TODO should component update
+    // TODO question: does componentWillRecieveProps run if shouldComponentUpdate returns false?
 
     componentWillReceiveProps(nextProps) {
       this.setup(nextProps);
@@ -168,7 +160,8 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       }
       else {
         // TODO: check for props that conflict with data attributes
-        return <this.ConnectedComponent {...this.props} {...this.commands} />; // TODO
+        // TODO: would it be more performat to move the creation of ConnectedComponent to a memoized method?
+        return <this.ConnectedComponent {...this.props} {...this.commands} />;
       }
     }
   }
