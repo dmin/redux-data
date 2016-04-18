@@ -46,7 +46,8 @@ export default function locusConnect(Component, { commands: commandDescriptors =
 
       var queries = applyPropsToOperations(queryDescriptors, props);
       this.resolveQueries(queries);
-      var selector = buildSelector(queries, '_locus_records');
+      // TODO instead of passing in '_locus_records' use a wrapping function
+      var selector = buildSelector(queries, '_locus_records'); // TODO check if selectors actually need to be rebuilt/can we just memoize?
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
     }
 
