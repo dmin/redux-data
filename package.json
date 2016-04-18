@@ -37,6 +37,7 @@
   "dependencies": {
     "deep-equal": "^1.0.1",
     "lodash.curry": "^4.0.1",
+    "lodash.filter": "^4.3.0",
     "lodash.find": "^4.3.0",
     "lodash.flow": "^3.3.0",
     "lodash.unionby": "^4.4.0",
