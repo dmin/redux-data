@@ -37,8 +37,12 @@ const where = curry((criteria, records) => {
 const transform = curry((transformation, records) => {
   // TODO allow more than one transform per query?
   // TODO allow custom transformations, or at least figure out a better way then using conditionals to choose a transformation
-  if (transformation === 'first') {
+  if (transformation === 'first' && records.length > 0) {
     return records[0];
+  }
+  else if (records.length === 0) {
+    // TODO use null object pattern or a Maybe here?
+    return null;
   }
   else {
     return records;
