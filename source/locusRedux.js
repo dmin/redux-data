@@ -34,7 +34,14 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       super(props, context);
       this.state = { loading: true, error: false };
       this.store = context.store;
-      this.setup(props);
+    }
+
+    componentWillMount() {
+      this.setup(this.props);
+    }
+
+    componentWillReceiveProps(nextProps) {
+      this.setup(nextProps);
     }
 
     setup(props) {
@@ -141,10 +148,6 @@ export default function locusConnect(Component, { commands: commandDescriptors =
 
     // TODO should component update
     // TODO question: does componentWillRecieveProps run if shouldComponentUpdate returns false?
-
-    componentWillReceiveProps(nextProps) {
-      this.setup(nextProps);
-    }
 
     render() {
       // TODO These states are for determining if all the 'required'
