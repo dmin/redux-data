@@ -13,14 +13,14 @@ export default function (recordsGroupedByType = {}, action) {
       };
 
     case 'LOCUS_UPDATE_RECORD':
-      const records = recordsGroupedByType[action.target];
+      const records = recordsGroupedByType[action.target] || [];
       // TODO need to enforce that data.id is included with update actions
-      const record = find(records, { id: action.data.id });
-      const updatedRecord = { ...record, ...action.data };
+      const record = find(records, { id: Number(action.data.id) }) || {}; // TODO extract typecasting to somewhere else // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the cache?
+      const updatedRecord = { ...record, ...action.data, ...{ id: Number(action.data.id) } }; // TODO extract typecasting to somewhere else
 
       return {
         ...recordsGroupedByType,
-        [action.target]: unionBy([updatedRecord], recordsGroupedByType[action.target] || [], 'id'),
+        [action.target]: unionBy([updatedRecord], records, 'id'),
       };
 
     case 'LOCUS_DELETE_RECORD':
