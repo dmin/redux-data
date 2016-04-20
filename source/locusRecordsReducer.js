@@ -15,8 +15,8 @@ export default function (recordsGroupedByType = {}, action) {
     case 'LOCUS_UPDATE_RECORD':
       const records = recordsGroupedByType[action.target] || [];
       // TODO need to enforce that data.id is included with update actions
-      const record = find(records, { id: Number(action.data.id) }) || {}; // TODO extract typecasting to somewhere else // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the cache?
-      const updatedRecord = { ...record, ...action.data, ...{ id: Number(action.data.id) } }; // TODO extract typecasting to somewhere else
+      const record = find(records, { id: action.data.id }) || {}; // TODO extract typecasting to somewhere else // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the cache?
+      const updatedRecord = { ...record, ...action.data, id: action.data.id }; // TODO extract typecasting to somewhere else
 
       return {
         ...recordsGroupedByType,
@@ -31,7 +31,7 @@ export default function (recordsGroupedByType = {}, action) {
       return {
         ...recordsGroupedByType,
         // TODO need to make sure id (and other fields) are the correct data type. Rather not do that everywhere they need to be compared
-        [action.target]: dRecords.filter(record => String(record.id) !== String(action.data)),
+        [action.target]: dRecords.filter(record => record.id !== action.data),
       };
 
     default:
