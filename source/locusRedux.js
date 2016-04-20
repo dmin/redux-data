@@ -18,7 +18,7 @@
    - action creator - function which creates action
 */
 
-import log from './log';
+import log from './log'; // TODO only need in DEV
 
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
@@ -150,15 +150,12 @@ export default function locusConnect(Component, { commands: commandDescriptors =
               .then(curry(processRemoteRecords)(
                 recordTypeRemoteOptions.names.fields
               ))
-              .then(log('records before'))
               .then(records => {
                 return records.map(record => {
                   return typeCastFields(this.schema, query.target, record);
                 });
               })
-              .then(log('records after'))
               .then(records => {
-
                 this.store.dispatch({
                   type: 'LOCUS_RECEIVE_REMOTE_RECORDS',
                   target: query.target,

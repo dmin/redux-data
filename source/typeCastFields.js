@@ -7,8 +7,14 @@ export default function typeCastFields(schema, target, suppliedFields) {
 
   return Object.entries(suppliedFields).reduce((typeCastFields, [fieldName, fieldValue]) => {
     const schemaField = find(schemaFields, { name: fieldName });
-    if (!schemaField) {
-      throw new Error(`${fieldName} is not a valid field for ${target}`);
+    if (!schemaField) { // TODO only in dev
+      // TODO better way?
+      // TODO it would be nice to know if they was happening on data from server / form field / etc
+      console.log(`The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`);
+      return {
+        ...typeCastFields,
+        [fieldName]: fieldValue,
+      };
     }
     return {
       ...typeCastFields,
