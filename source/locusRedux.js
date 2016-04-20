@@ -35,6 +35,8 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       super(props, context);
       this.state = { loading: true, error: false };
       this.store = context.store;
+
+      this.schema = this.store.getState()._locus_schema; // TODO better way of accessing schema
     }
 
     componentWillMount() {
@@ -68,8 +70,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       // TODO action names should be case sensitive?
       if (actionName === 'update' || actionName === 'create') {
         // type cast fields
-        const schema = this.store.getState()._locus_schema; // TODO better way of accessing schema
-        typeCastData = typeCastFields(schema, target, data);
+        typeCastData = typeCastFields(this.schema, target, data);
       }
       else if (action === 'delete') {
         // data for a delete action should be a string representing a record id.
@@ -110,12 +111,12 @@ export default function locusConnect(Component, { commands: commandDescriptors =
     }
 
     getSchemaAction(recordType, action) {
-      return this.store.getState()._locus_schema[recordType].actions[action];
+      return this.schema[recordType].actions[action];
     }
 
     getRemoteOptions(recordType) {
       // TODO can knowledge of the schema here somehow be reduced?
-      return this.store.getState()._locus_schema[recordType].remote;
+      return this.schema[recordType].remote;
     }
 
     // TODO dependency: requires _locus_pending/cachedQueries property on state
