@@ -18,6 +18,8 @@
    - action creator - function which creates action
 */
 
+import log from './log';
+
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import applyPropsToOperations from './applyPropsToOperations';
@@ -27,6 +29,8 @@ import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
 import typeCastFields from './typeCastFields';
+
+import curry from 'lodash.curry';
 
 export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryDescriptors = {} }) {
 
@@ -91,13 +95,12 @@ export default function locusConnect(Component, { commands: commandDescriptors =
 
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
       // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
-
       remoteActionPromise.then(_ => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
         this.store.dispatch({
           // TODO this seems fragile
           type: `LOCUS_${command.action.toUpperCase()}_RECORD`,
           target: target,
-          typeCastData,
+          data: typeCastData,
           // TODO using something like redux-react-router could update the url here
           // TODO using something like redux-react-router could update the url here
         });
@@ -138,25 +141,38 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         else {
           const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
           const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
-          const recordsPromise = request(url, 'GET'); // TODO this is really just Jquery.getJSON - refactor to use fetch?
-            // TODO what if we want to receive records of multiple types?
+          // TODO what if we want to receive records of multiple types?
 
-          const processedRecordsPromise = processRemoteRecords(recordsPromise, recordTypeRemoteOptions.names.collection, recordTypeRemoteOptions.names.fields)
-            .then(records => {
+          const recordsPromise = (
+            // TODO this is really just Jquery.getJSON - refactor to use fetch?
+            request(url, 'GET')
+              .then(responseBody => responseBody[query.target])
+              .then(curry(processRemoteRecords)(
+                recordTypeRemoteOptions.names.fields
+              ))
+              .then(log('records before'))
+              .then(records => {
+                return records.map(record => {
+                  return typeCastFields(this.schema, query.target, record);
+                });
+              })
+              .then(log('records after'))
+              .then(records => {
 
-              this.store.dispatch({
-                type: 'LOCUS_RECEIVE_REMOTE_RECORDS',
-                target: query.target,
-                records,
-              });
-            })
-            // TODO unless I catch errors, the promises will swallow all errors
-            .catch(e => console.log(e));
+                this.store.dispatch({
+                  type: 'LOCUS_RECEIVE_REMOTE_RECORDS',
+                  target: query.target,
+                  records,
+                });
+              })
+              // TODO unless I catch errors, the promises will swallow all errors
+              .catch(e => console.log(e))
+          );
 
           // Adds query to list of pending/cached queries
-          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, processedRecordsPromise }); // TODO
+          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, recordsPromise }); // TODO
 
-          return processedRecordsPromise;
+          return recordsPromise;
         }
       });
 
