@@ -21,7 +21,7 @@ export default function request(
           .post(url)
           .set('X-Http-Method-Override', method) // TODO should we customize how the method overide is sent? ie with a different header, or a special field
           // TODO: when delete request is made I don't want to send anthing in the body
-          .send(body)
+          .send(body) // TODO I believe superagent is setting content type to json here, should we offer customization?
       );
     }
 

@@ -26,6 +26,7 @@ import buildSelector from './buildSelector';
 import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecords from './processRemoteRecords';
+import typeCastFields from './typeCastFields';
 
 export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryDescriptors = {} }) {
 
@@ -45,6 +46,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
     }
 
     setup(props) {
+      // TODO it would be good to validate commands and queries here and warn if they are not formated correctly (also run this check when they are executed and give error in that case)
       this.commands = applyPropsToOperations(
         commandDescriptors,
         props,
@@ -59,16 +61,31 @@ export default function locusConnect(Component, { commands: commandDescriptors =
     }
 
     executeCommand(command, data) {
+      const target = command.target; // TODO rename to collection
+      const actionName = command.action; // TODO rename (action should have one meaning: a redux action)
+
+      let typeCastData;
+      // TODO action names should be case sensitive?
+      if (actionName === 'update' || actionName === 'create') {
+        // type cast fields
+        const schema = this.store.getState()._locus_schema; // TODO better way of accessing schema
+        typeCastData = typeCastFields(schema, target, data);
+      }
+      else if (action === 'delete') {
+        // data for a delete action should be a string representing a record id.
+        typeCastData = String(data);
+      }
+
       // TODO this code knows a lot about how actions/commands are structured
-      const action = this.getSchemaAction(command.target, command.action);
+      const action = this.getSchemaAction(target, command.action);
       // if optimistic do that here
 
       // do remote
       const { url, method, requestBody } = action.remote;
       const remoteActionPromise = request(
-        url(data, this.props),
+        url(typeCastData, this.props),
         method,
-        requestBody(data, this.props)
+        requestBody(typeCastData, this.props)
       );
 
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
@@ -78,13 +95,14 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         this.store.dispatch({
           // TODO this seems fragile
           type: `LOCUS_${command.action.toUpperCase()}_RECORD`,
-          target: command.target,
-          data,
+          target: target,
+          typeCastData,
           // TODO using something like redux-react-router could update the url here
           // TODO using something like redux-react-router could update the url here
         });
 
         // TODO is this the best place for this?
+        // TODO should there be a way to tell locus not to trigger a "store changed" event if the route(or something else) is going to be changing anyway?
         command.then ? command.then() : undefined;
       });
       // TODO handle errors (http/validation) If remote action fails need rollback plan
