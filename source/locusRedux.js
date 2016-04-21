@@ -128,19 +128,22 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
+        // TODO why do I need to get fresh state of _locus_queries each iteration?
         const {
           _locus_queries,
         } = this.store.getState();
 
+        const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
+        const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
+
         // TODO: Returns a promise or undefined
-        const cachedOrPendingQuery = findCachedOrPendingQuery(_locus_queries, query);
+        const cachedOrPendingQuery = findCachedOrPendingQuery(_locus_queries, url);
 
         if (cachedOrPendingQuery) {
+          console.log('use cache');
           return cachedOrPendingQuery;
         }
         else {
-          const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
-          const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
           // TODO what if we want to receive records of multiple types?
 
           const recordsPromise = (
@@ -167,7 +170,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
           );
 
           // Adds query to list of pending/cached queries
-          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', query, recordsPromise }); // TODO
+          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', url, recordsPromise }); // TODO
 
           return recordsPromise;
         }
