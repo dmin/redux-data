@@ -1,10 +1,6 @@
 /*
   TODO: need to validate queries against schema
   TODO: prevent passing in new queries (how would they do that?)
-  TODO: use a storeEnhancer to setup reducers, check for name colisions
-   - _locus_queries
-   - _locus_records
-   - _locus_schema
 
   TODO: allow passing in a custom connect function (for use with redux-form)
 
@@ -40,7 +36,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       this.state = { loading: true, error: false };
       this.store = context.store;
 
-      this.schema = this.store.getState()._locus_schema; // TODO better way of accessing schema
+      this.schema = this.store.getState().locus.schema; // TODO better way of accessing schema
     }
 
     componentWillMount() {
@@ -63,7 +59,7 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       this.resolveQueries(queries);
 
       const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
-      const selector = state => recordsSelector(state._locus_records); // TODO it would be great to extract this knowledge of the redux store even further
+      const selector = state => recordsSelector(state.locus.recordsGroupedByType); // TODO it would be great to extract this knowledge of the redux store even further
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
     }
 
@@ -123,22 +119,22 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       return this.schema[recordType].remote;
     }
 
-    // TODO dependency: requires _locus_pending/cachedQueries property on state
+    // TODO dependency: requires locus.queries property on state (which contains previous queries)
     resolveQueries(queries) {
       const promisedQueries = Object.entries(queries).map(([_, query]) => {
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
-        // TODO why do I need to get fresh state of _locus_queries each iteration?
+        // TODO why do I need to get fresh state of locus.queries each iteration?
         const {
-          _locus_queries,
-        } = this.store.getState();
+          queries: previousQueries,
+        } = this.store.getState().locus;
 
         const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
         const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
 
         // TODO: Returns a promise or undefined
-        const cachedOrPendingQuery = findCachedOrPendingQuery(_locus_queries, url);
+        const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, url);
 
         if (cachedOrPendingQuery) {
           console.log('use cache');
