@@ -18,12 +18,11 @@ import _selectRecords from './selectRecords';
 */
 export default function buildSelector(
   queries,
-  recordsProperty,
   selectRecords = _selectRecords
 ) {
   return state => {
     return entries(queries).reduce((namedSelectors, [queryName, query]) => {
-      return { [queryName]: selectRecords(state[recordsProperty], query), ...namedSelectors };
+      return { [queryName]: selectRecords(state, query), ...namedSelectors };
     }, {});
   };
 }

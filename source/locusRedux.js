@@ -18,7 +18,7 @@
    - action creator - function which creates action
 */
 
-import log from './log'; // TODO only need in DEV
+// import log from './log'; // TODO only need in DEV
 
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
@@ -59,10 +59,11 @@ export default function locusConnect(Component, { commands: commandDescriptors =
         command => data => this.executeCommand(command, data)
       );
 
-      var queries = applyPropsToOperations(queryDescriptors, props);
+      const queries = applyPropsToOperations(queryDescriptors, props);
       this.resolveQueries(queries);
-      // TODO instead of passing in '_locus_records' use a wrapping function
-      var selector = buildSelector(queries, '_locus_records'); // TODO check if selectors actually need to be rebuilt/can we just memoize?
+
+      const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
+      const selector = state => recordsSelector(state._locus_records); // TODO it would be great to extract this knowledge of the redux store even further
       this.ConnectedComponent = reduxConnect(selector)(Component); // TODO pass commands
     }
 
