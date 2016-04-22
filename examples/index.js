@@ -4,23 +4,17 @@ import { render } from 'react-dom';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
-// TODO relocate/automate adding these
 import schema from './schema';
-import createSchemaReducer from '../source/createSchemaReducer';
-const schemaReducer = createSchemaReducer(schema);
-import locusQueriesReducer from '../source/locusQueriesReducer';
-import locusRecordsReducer from '../source/locusRecordsReducer';
+import createReducer from '../source/createReducer';
 
 import { Provider } from 'react-redux';
+
 import Items from './Items';
 
-const reducers = {
-  _locus_queries: locusQueriesReducer,
-  _locus_records: locusRecordsReducer,
-  _locus_schema: schemaReducer,
-};
-
-const combinedReducer = combineReducers(reducers);
+// TODO: use a store enhancer to setup reducers, check for name colisions? See discussion at: https://github.com/reactjs/redux/issues/678
+const combinedReducer = combineReducers({
+  locus: createReducer(schema),
+});
 
 let store = createStore(combinedReducer, applyMiddleware(thunk));
 
