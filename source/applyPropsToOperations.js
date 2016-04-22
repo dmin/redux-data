@@ -1,3 +1,6 @@
+/*
+  TODO description, params, return
+*/
 export default function applyPropsToOperations(
   operationDescriptors,
   props,
