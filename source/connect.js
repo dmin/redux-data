@@ -34,6 +34,10 @@
 // import log from './log'; // TODO only need in DEV
 
 import React from 'react';
+
+import Loading from './Loading';
+import Error from './Error';
+
 import { connect as reduxConnect } from 'react-redux';
 import applyPropsToOperations from './applyPropsToOperations';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
@@ -207,12 +211,12 @@ export default function locusConnect(Component, { commands: commandDescriptors =
       // TODO implement 'defered' queries
       if (this.state.loading) {
         // TODO allow custom loading component
-        return <div>Loading records...</div>;
+        return <Loading />;
       }
       else if (this.state.error) {
         // TODO allow custom error component
         // TODO retry functionality? automatic? manual?
-        return <div>There was an error loading...</div>;
+        return <Error />;
       }
       else {
         // TODO: check for props that conflict with data attributes
