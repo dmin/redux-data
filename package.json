@@ -14,10 +14,8 @@
   "license": "ISC",
   "peerDependencies": {
     "react": "^15.0.0",
-    "react-dom": "^15.0.0",
     "react-redux": "^4.4.2",
     "redux": "^3.4.0",
-    "redux-thunk": "^2.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
@@ -29,6 +27,7 @@
     "babel-preset-react": "^6.5.0",
     "invariant": "^2.2.1",
     "sinon": "^1.17.3",
+    "react-dom": "^15.0.0",
     "tape": "^4.5.1"
   },
   "dependencies": {
