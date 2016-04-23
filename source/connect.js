@@ -35,8 +35,8 @@
 
 import React from 'react';
 
-import Loading from './Loading';
-import Error from './Error';
+import _Loading from './Loading';
+import _Error from './Error';
 
 import { connect as reduxConnect } from 'react-redux';
 import applyPropsToOperations from './applyPropsToOperations';
@@ -49,7 +49,15 @@ import typeCastFields from './typeCastFields';
 
 import curry from 'lodash.curry';
 
-export default function locusConnect(Component, { commands: commandDescriptors = {}, queries: queryDescriptors = {} }) {
+export default function locusConnect(
+  Component,
+  {
+    commands: commandDescriptors = {},
+    queries: queryDescriptors = {},
+    Loading = _Loading,
+    Error = _Error,
+  }
+) {
 
   class LocusConnect extends React.Component {
     constructor(props, context) {
