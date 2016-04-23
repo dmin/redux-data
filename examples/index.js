@@ -5,7 +5,7 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
 import schema from './schema';
-import createReducer from '../source/createReducer';
+import { createReducer } from '../source/index';
 
 import { Provider } from 'react-redux';
 

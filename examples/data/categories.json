@@ -1,0 +1,28 @@
+{
+  "categories": [{
+    "id": 142,
+    "name": "Orbital Dynamics",
+    "category_selection_id": 626,
+    "vendorCount": 28
+  }, {
+    "id": 145,
+    "name": "Dial Home Device",
+    "category_selection_id": 624,
+    "vendorCount": 93
+  }, {
+    "id": 152,
+    "name": "Relativistic Calculations",
+    "category_selection_id": 622,
+    "vendorCount": 19
+  }, {
+    "id": 192,
+    "name": "Launch Monitoring",
+    "category_selection_id": 620,
+    "vendorCount": 31
+  }, {
+    "id": 205,
+    "name": "Electrical",
+    "category_selection_id": 623,
+    "vendorCount": 57
+  }]
+}

@@ -1,6 +1,7 @@
 /*
   TODO schema validator
   TODO web based schema editor
+  TODO 'global' fields property that describes how to translate names between server and client (part of an adapter?)
 */
 
 export default {
@@ -18,14 +19,17 @@ export default {
       parseCollectionResponse: response => response.items, // TODO default, translates field names
       parseRecordResponse: response => response.item, // TODO default, translates field names
       capabilities: {
+        // TODO how to handle urls for nested resources in rails/similar apps
         offset: true,
         limit: true, // TODO what should be default? TODO: what if server doesn't accept option, but always limits number of results?
       },
     },
 
     fields: [
-      { id: String }, // by default id not allowed when updating/creating
-      { name: String },
+      { name: 'id', type: String }, // by default id not allowed when updating/creating
+      { name: 'name', type: String },
+      { name: 'quantity', type: Number }, // TODO also decimal type?
+      // TODO support date types
     ],
 
     // TODO: should 'adapters' be able to define these?

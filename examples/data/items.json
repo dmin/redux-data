@@ -1,0 +1,47 @@
+{
+  "items": [{
+    "id": 1,
+    "name": "Receptacle",
+    "quantity": 10
+  }, {
+    "id": 2,
+    "name": "Switch",
+    "quantity": 10
+  }, {
+    "id": 3,
+    "name": "Bulb",
+    "quantity": 10
+  }, {
+    "id": 4,
+    "name": "Plate",
+    "quantity": 10
+  }, {
+    "id": 5,
+    "name": "Cord",
+    "quantity": 10
+  }, {
+    "id": 6,
+    "name": "Breaker",
+    "quantity": 10
+  }, {
+    "id": 7,
+    "name": "Fuse",
+    "quantity": 10
+  }, {
+    "id": 8,
+    "name": "Zip Tie",
+    "quantity": 10
+  }, {
+    "id": 9,
+    "name": "Lug",
+    "quantity": 10
+  }, {
+    "id": 10,
+    "name": "Smoke Alarm",
+    "quantity": 10
+  }, {
+    "id": 11,
+    "name": "Meter Base",
+    "quantity": 10
+  }]
+}
