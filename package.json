@@ -40,7 +40,6 @@
     "lodash.find": "^4.3.0",
     "lodash.flow": "^3.3.0",
     "lodash.unionby": "^4.4.0",
-    "object.entries": "^1.0.3",
     "superagent": "^1.8.3"
   }
 }
