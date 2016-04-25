@@ -22,6 +22,20 @@ export default {
         // TODO how to handle urls for nested resources in rails/similar apps
         offset: true,
         limit: true, // TODO what should be default? TODO: what if server doesn't accept option, but always limits number of results?
+
+        where: (criteria, _url) => {
+          // If second argument is requested then expects a full url parts object
+          // if only one argument is requested then expects a partial query string
+          // OR
+          // can return a string (partial query string), or an object which replaces the url object.
+          // TODO needs to handle multiple types of criterion
+          const queryParams = Object.entries(criteria).reduce((queryParams, [key, value]) => {
+            // TODO uri encoding?
+            return queryParams.concat(`query[${key}]=${value}`);
+          }, []);
+
+          return queryParams.join('&');
+        },
       },
     },
 
