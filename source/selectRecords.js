@@ -40,7 +40,8 @@ const transform = curry((transformation, records) => {
   if (transformation === 'first' && records.length > 0) {
     return records[0];
   }
-  else if (records.length === 0) {
+  else if (transformation === 'first' && records.length === 0) {
+    // TODO should this be an error? should the first transformer require that are record be found?
     // TODO use null object pattern or a Maybe here?
     return null;
   }
