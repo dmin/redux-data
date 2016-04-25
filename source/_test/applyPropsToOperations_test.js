@@ -12,7 +12,7 @@ const props = {
   prop2: 'value 2',
 };
 
-test('applyPropsToOperation...', assert => {
+test('applyPropsToOperation: when not given createOperation, returns object with same keys, and values as supplied functions applied to supplied props.', assert => {
   const createOperation = undefined;
 
   const actual = applyPropsToOperations(
@@ -26,12 +26,12 @@ test('applyPropsToOperation...', assert => {
     od2: 'op 2, value 1, value 2',
   };
 
-  assert.deepEqual(actual, expected, 'when not given createOperation, returns object with same keys, and values as supplied functions applied to supplied props.');
+  assert.deepEqual(actual, expected);
   assert.end();
 });
 
 
-test('applyPropsToOperation...', assert => {
+test('applyPropsToOperation: when supplied createOperation, returns object with same keys, and values as supplied functions applied to supplied props, then applied to createOperation.', assert => {
   const createOperation = op => `${op} change`;
 
   const actual = applyPropsToOperations(
@@ -45,6 +45,6 @@ test('applyPropsToOperation...', assert => {
     od2: 'op 2, value 1, value 2 change',
   };
 
-  assert.deepEqual(actual, expected, 'when supplied createOperation, returns object with same keys, and values as supplied functions applied to supplied props, then applied to createOperation.');
+  assert.deepEqual(actual, expected);
   assert.end();
 });
