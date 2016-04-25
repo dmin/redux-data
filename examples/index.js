@@ -1,8 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
+import { createStore, combineReducers } from 'redux';
 
 import schema from './schema';
 import { createReducer } from '../source/index';
@@ -16,7 +15,7 @@ const combinedReducer = combineReducers({
   locus: createReducer(schema),
 });
 
-let store = createStore(combinedReducer, applyMiddleware(thunk));
+const store = createStore(combinedReducer);
 
 render(
   <Provider store={store}>
