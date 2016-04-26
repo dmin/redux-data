@@ -31,23 +31,6 @@ test('validateQuery: given a target clause with an invalid collection returns fa
 });
 
 
-test('validateQuery: returns true when limit clause value is a number, otherwise false', assert => {
-  const validLimit = {
-    target: 'items',
-    limit: 100,
-  };
-
-  const invalidLimit = {
-    target: 'items',
-    limit: 'not a number',
-  };
-
-  assert.true(validateQuery(validLimit, schemaManager, 'testQuery', 'testComponent'));
-  assert.false(validateQuery(invalidLimit, schemaManager, 'testQuery', 'testComponent'));
-  assert.end();
-});
-
-
 test('validateQuery: returns true when select clause value is an array of valid field names, otherwise false', assert => {
   const validSelect = {
     target: 'items',
@@ -67,5 +50,39 @@ test('validateQuery: returns true when select clause value is an array of valid 
   assert.true(validateQuery(validSelect, schemaManager, 'testQuery', 'testComponent'));
   assert.false(validateQuery(invalidSelectType, schemaManager, 'testQuery', 'testComponent'));
   assert.false(validateQuery(invalidSelectFieldName, schemaManager, 'testQuery', 'testComponent'));
+  assert.end();
+});
+
+
+test('validateQuery: returns true when limit clause value is a number, otherwise false', assert => {
+  const validLimit = {
+    target: 'items',
+    limit: 100,
+  };
+
+  const invalidLimit = {
+    target: 'items',
+    limit: 'not a number',
+  };
+
+  assert.true(validateQuery(validLimit, schemaManager, 'testQuery', 'testComponent'));
+  assert.false(validateQuery(invalidLimit, schemaManager, 'testQuery', 'testComponent'));
+  assert.end();
+});
+
+
+test('validateQuery: returns true when offset clause value is a number, otherwise false', assert => {
+  const validOffset = {
+    target: 'items',
+    offset: 100,
+  };
+
+  const invalidOffset = {
+    target: 'items',
+    offset: 'not a number',
+  };
+
+  assert.true(validateQuery(validOffset, schemaManager, 'testQuery', 'testComponent'));
+  assert.false(validateQuery(invalidOffset, schemaManager, 'testQuery', 'testComponent'));
   assert.end();
 });

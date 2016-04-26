@@ -34,19 +34,6 @@ export default function validateQuery(query, schemaManager, queryName, component
       type: type => schemaManager.isCollectionType(type),
     },
 
-    limit: {
-      isRequired: false,
-      warn() {
-        // TODO it would be great to give more information about which query needs to be fixed
-        // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
-        messages.push({
-          type: 'warn',
-          message: `You did not specify a 'limit' clause in the "${queryName}" for "${componentName}".`,
-        });
-      },
-      type: type => typeof type === 'number',
-    },
-
     select: {
       isRequired: false,
       type: fields => {
@@ -75,6 +62,24 @@ export default function validateQuery(query, schemaManager, queryName, component
 
         return true;
       },
+    },
+
+    limit: {
+      isRequired: false,
+      warn() {
+        // TODO it would be great to give more information about which query needs to be fixed
+        // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
+        messages.push({
+          type: 'warn',
+          message: `You did not specify a 'limit' clause in the "${queryName}" for "${componentName}".`,
+        });
+      },
+      type: type => typeof type === 'number',
+    },
+
+    offset: {
+      isRequired: false,
+      type: type => typeof type === 'number',
     },
   };
 
