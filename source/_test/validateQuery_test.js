@@ -14,7 +14,7 @@ test('validateQuery: given only a target clause, returns true', assert => {
     // TODO limit clause might be required?
   };
 
-  const actual = validateQuery(validQuery, schemaManager);
+  const actual = validateQuery(validQuery, schemaManager, 'testQuery', 'testComponent');
   assert.true(actual);
   assert.end();
 });
@@ -25,7 +25,7 @@ test('validateQuery: given a target clause with an invalid collection returns fa
     target: 'invalidCollection',
   };
 
-  const actual = validateQuery(invalidTarget, schemaManager);
+  const actual = validateQuery(invalidTarget, schemaManager, 'testQuery', 'testComponent');
   assert.false(actual);
   assert.end();
 });
@@ -42,8 +42,8 @@ test('validateQuery: returns true when limit clause value is a number, otherwise
     limit: 'not a number',
   };
 
-  assert.true(validateQuery(validLimit, schemaManager));
-  assert.false(validateQuery(invalidLimit, schemaManager));
+  assert.true(validateQuery(validLimit, schemaManager, 'testQuery', 'testComponent'));
+  assert.false(validateQuery(invalidLimit, schemaManager, 'testQuery', 'testComponent'));
   assert.end();
 });
 
@@ -64,8 +64,8 @@ test('validateQuery: returns true when select clause value is an array of valid 
     select: ['not a field in items'],
   };
 
-  assert.true(validateQuery(validSelect, schemaManager));
-  assert.false(validateQuery(invalidSelectType, schemaManager));
-  assert.false(validateQuery(invalidSelectFieldName, schemaManager));
+  assert.true(validateQuery(validSelect, schemaManager, 'testQuery', 'testComponent'));
+  assert.false(validateQuery(invalidSelectType, schemaManager, 'testQuery', 'testComponent'));
+  assert.false(validateQuery(invalidSelectFieldName, schemaManager, 'testQuery', 'testComponent'));
   assert.end();
 });

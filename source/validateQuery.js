@@ -3,6 +3,7 @@
   queries during development. It is not intended to be invoked in production.
 
   TODO can we make a Flow/TypeScript type in place of this? Would they be able to access the schema?
+  If so, can we keep this method to for runtime checks but somehow rely on the type definitions?
 
   What is a valid query?
 
@@ -20,6 +21,10 @@
 
 export default function validateQuery(query, schemaManager, queryName, componentName) {
   // TODO type check arguments or use Flow?
+  if (typeof query !== 'object') { throw new Error('Expected query argument to be an object.'); }
+  if (typeof schemaManager !== 'object') { throw new Error('Expected schemaManager argument to be an object.'); }
+  if (typeof queryName !== 'string') { throw new Error('Expected queryName argument to be a string.'); }
+  if (typeof componentName !== 'string') { throw new Error('Expected componentName argument to be an string.'); }
 
   let messages = [];
 
