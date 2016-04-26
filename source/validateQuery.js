@@ -45,7 +45,7 @@ export default function validateQuery(query, schemaManager, queryName, component
           return false;
         }
 
-        const hasValidFields = fields.reduce((result, field) => {
+        return fields.reduce((result, field) => {
           if (!schemaManager.isCollectionField(query.target, field)) {
             messages.push({
               type: 'error',
@@ -55,12 +55,6 @@ export default function validateQuery(query, schemaManager, queryName, component
           }
           return result;
         }, true);
-
-        if (!hasValidFields) {
-          return false;
-        }
-
-        return true;
       },
     },
 
@@ -80,6 +74,47 @@ export default function validateQuery(query, schemaManager, queryName, component
     offset: {
       isRequired: false,
       type: type => typeof type === 'number',
+    },
+
+    where: {
+      isRequired: false,
+      type: criteria => {
+        if (typeof criteria !== 'object') {
+          messages.push({
+            type: 'error',
+            message: `Value of a query's 'where' clause must be an object (representing criteria to filter by). See the "${queryName}" query for "${componentName}".`,
+          });
+          return false;
+        }
+
+        /*
+          TODO Currently we only support simple equality check criteria.
+          Check to make sure each property of criteria is a valid field name
+          and each value is a valid type for the given field.
+        */
+
+        return Object.entries(criteria).reduce((result, [key, value]) => {
+          const isValidField = schemaManager.isCollectionField(query.target, key);
+          if (!isValidField) {
+            messages.push({
+              type: 'error',
+              message: `"${key}" does not appear to be a field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for "${componentName}".`,
+            });
+            return false;
+          }
+
+          const isValidFieldType = schemaManager.isCollectionFieldType(query.target, key, value);
+          if (!isValidFieldType) {
+            messages.push({
+              type: 'error',
+              message: `"${value}" does not appear to be a valid type for the "${key}" field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for "${componentName}".`,
+            });
+            return false;
+          }
+
+          return result;
+        }, true);
+      },
     },
   };
 

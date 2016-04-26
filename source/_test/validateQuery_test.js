@@ -86,3 +86,26 @@ test('validateQuery: returns true when offset clause value is a number, otherwis
   assert.false(validateQuery(invalidOffset, schemaManager, 'testQuery', 'testComponent'));
   assert.end();
 });
+
+
+test('validateQuery: returns true when where clause valid, otherwise false', assert => {
+  const validWhereSimpleEquals = {
+    target: 'items',
+    where: { name: 'Some Name' },
+  };
+  assert.true(validateQuery(validWhereSimpleEquals, schemaManager, 'testQuery', 'testComponent'));
+
+  const invalidWhereNotObject = {
+    target: 'items',
+    where: 'not object',
+  };
+  assert.false(validateQuery(invalidWhereNotObject, schemaManager, 'testQuery', 'testComponent'));
+
+  const invalidWhereSimpleEquals = {
+    target: 'items',
+    where: { name: 9 /* should be a string */ },
+  };
+  assert.false(validateQuery(invalidWhereSimpleEquals, schemaManager, 'testQuery', 'testComponent'));
+
+  assert.end();
+});
