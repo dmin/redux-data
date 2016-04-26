@@ -34,7 +34,10 @@ export default function validateQuery(query, schemaManager, queryName, component
       warn() {
         // TODO it would be great to give more information about which query needs to be fixed
         // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
-        console.warn(`You did not specify a "limit" clause in the ${queryName} for ${componentName}.`);
+        messages.push({
+          type: 'warn',
+          message: `You did not specify a 'limit' clause in the "${queryName}" for "${componentName}".`,
+        });
       },
       type: type => typeof type === 'number',
     },
@@ -43,13 +46,19 @@ export default function validateQuery(query, schemaManager, queryName, component
       isRequired: false,
       type: fields => {
         if (!Array.isArray(fields)) {
-          console.error(`Must pass an array of strings (representing field names) to a query's select clause. See the ${queryName} query in ${componentName}.`);
+          messages.push({
+            type: 'error',
+            message: `Value of a query's 'select' clause must be an array of strings (representing field names). See the "${queryName}" query for "${componentName}".`,
+          });
           return false;
         }
 
         const hasValidFields = fields.reduce((result, field) => {
           if (!schemaManager.isCollectionField(query.target, field)) {
-            messages.push(`${field} does not appear to be a field in the ${query.target} collection. See the 'select' clause from the ${queryName} query in ${componentName}.`);
+            messages.push({
+              type: 'error',
+              message: `"${field}" does not appear to be a field in the "${query.target}" collection. See the 'select' clause from the "${queryName}" query for "${componentName}".`,
+            });
             return false;
           }
           return result;
@@ -78,6 +87,8 @@ export default function validateQuery(query, schemaManager, queryName, component
       }
     }
   });
+
+  messages.forEach(message => console[message.type](message.message));
 
   return isValid;
 }
