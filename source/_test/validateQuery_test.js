@@ -31,13 +31,41 @@ test('validateQuery: given a target clause with an invalid collection returns fa
 });
 
 
-test('validateQuery: given an invalid limit clause returns false', assert => {
+test('validateQuery: returns true when limit clause value is a number, otherwise false', assert => {
+  const validLimit = {
+    target: 'items',
+    limit: 100,
+  };
+
   const invalidLimit = {
     target: 'items',
     limit: 'not a number',
   };
 
-  const actual = validateQuery(invalidLimit, schemaManager);
-  assert.false(actual);
+  assert.true(validateQuery(validLimit, schemaManager));
+  assert.false(validateQuery(invalidLimit, schemaManager));
+  assert.end();
+});
+
+
+test('validateQuery: returns true when select clause value is an array of valid field names, otherwise false', assert => {
+  const validSelect = {
+    target: 'items',
+    select: ['id', 'name', 'quantity'],
+  };
+
+  const invalidSelectType = {
+    target: 'items',
+    select: 'not a array',
+  };
+
+  const invalidSelectFieldName = {
+    target: 'items',
+    select: ['not a field in items'],
+  };
+
+  assert.true(validateQuery(validSelect, schemaManager));
+  assert.false(validateQuery(invalidSelectType, schemaManager));
+  assert.false(validateQuery(invalidSelectFieldName, schemaManager));
   assert.end();
 });
