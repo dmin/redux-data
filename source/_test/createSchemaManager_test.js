@@ -26,3 +26,10 @@ test('SchemaManager#isCollectionField returns true if the given string matches t
   assert.false(schemaManager.isCollectionField('not a real collection', 'not a real field'));
   assert.end();
 });
+
+
+test('SchemaManager#isCollectionFieldType returns true if the given value matches the type of the given field for the given collection in the schema, otherwise returns false', assert => {
+  assert.true(schemaManager.isCollectionFieldType('items', 'name', 'David'), 'valid type');
+  assert.false(schemaManager.isCollectionFieldType('items', 'name', 1), 'invalid type');
+  assert.end();
+});

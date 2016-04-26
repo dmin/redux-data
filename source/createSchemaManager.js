@@ -1,3 +1,5 @@
+// TODO future refactor: a lot of these functions probably are not needed in production.
+
 export default function createSchemaManager(schema) {
   // TODO type check schema?
   let _schema;
@@ -31,6 +33,21 @@ export default function createSchemaManager(schema) {
       else {
         return false;
       }
+    }
+
+    isCollectionFieldType(collectionName, fieldName, value) {
+      if (!this.isCollectionType(collectionName) || !this.isCollectionField(collectionName, fieldName)) {
+        return false;
+      }
+
+      const fieldDescriptor = (
+        _schema[collectionName]
+          .fields
+          .filter(fd => fd.name === fieldName)[0] // TODO need to validate schema to ensure no duplicate field names
+      );
+
+      // TODO dependency: depends on, among other things, that fieldDescriptor is a function (essential the built-in String, or Number functions)
+      return fieldDescriptor.type(value) === value;
     }
   }
 
