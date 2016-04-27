@@ -40,7 +40,7 @@ export default function validateQuery(query, schemaManager, queryName, component
         if (!Array.isArray(fields)) {
           messages.push({
             type: 'error',
-            message: `Value of a query's 'select' clause must be an array of strings (representing field names). See the "${queryName}" query for "${componentName}".`,
+            message: `Value of a query's 'select' clause must be an array of strings (representing field names). See the "${queryName}" query for the component"${componentName}".`,
           });
           return false;
         }
@@ -49,7 +49,7 @@ export default function validateQuery(query, schemaManager, queryName, component
           if (!schemaManager.isCollectionField(query.target, field)) {
             messages.push({
               type: 'error',
-              message: `"${field}" does not appear to be a field in the "${query.target}" collection. See the 'select' clause from the "${queryName}" query for "${componentName}".`,
+              message: `"${field}" does not appear to be a field in the "${query.target}" collection. See the 'select' clause from the "${queryName}" query for the component"${componentName}".`,
             });
             return false;
           }
@@ -65,7 +65,8 @@ export default function validateQuery(query, schemaManager, queryName, component
         // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
         messages.push({
           type: 'warn',
-          message: `You did not specify a 'limit' clause in the "${queryName}" for "${componentName}".`,
+          // TODO update message about default limit clause
+          message: `You did not specify a 'limit' clause in the "${queryName}" query for the component "${componentName}".`,
         });
       },
       type: type => typeof type === 'number',
@@ -82,7 +83,7 @@ export default function validateQuery(query, schemaManager, queryName, component
         if (typeof criteria !== 'object') {
           messages.push({
             type: 'error',
-            message: `Value of a query's 'where' clause must be an object (representing criteria to filter by). See the "${queryName}" query for "${componentName}".`,
+            message: `Value of a query's 'where' clause must be an object (representing criteria to filter by). See the "${queryName}" query for the component"${componentName}".`,
           });
           return false;
         }
@@ -107,7 +108,7 @@ export default function validateQuery(query, schemaManager, queryName, component
           if (!isValidFieldType) {
             messages.push({
               type: 'error',
-              message: `"${value}" does not appear to be a valid type for the "${key}" field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for "${componentName}".`,
+              message: `"${value}" (a ${typeof value}) does not appear to be a valid type for the "${key}" field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for the component "${componentName}".`,
             });
             return false;
           }
