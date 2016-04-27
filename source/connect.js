@@ -44,7 +44,7 @@ import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
 import request from './request';
 import buildUrl from './buildUrl';
-import processRemoteRecords from './processRemoteRecords';
+import processRemoteRecord from './processRemoteRecord';
 import typeCastFields from './typeCastFields';
 
 import curry from 'lodash.curry';
@@ -128,18 +128,23 @@ export default function locusConnect(
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
       // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
       remoteActionPromise.then(response => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
+        const record = response[this.schema[target].remote.names.record];
+        const processedRecord = processRemoteRecord(this.schema[command.target].remote.names.fields, record);
+        // TODO connect should only care about records, it should know nothing about parsing the response body
+        const typeCastRecord = typeCastFields(this.schema, target, processedRecord || {});
+
         this.store.dispatch({
           // TODO this seems fragile
           type: `LOCUS_${command.action.toUpperCase()}_RECORD`,
           target: target,
-          data: response[this.schema[target].remote.names.record], // TODO this is a ridiculous dependency, but it should work for create/update/delete - as far as using rails is concerned.
+          data: typeCastRecord, // TODO this is a ridiculous dependency, but it should work for create/update/delete - as far as using rails is concerned.
           // TODO using something like redux-react-router could update the url here
           // TODO using something like redux-react-router could update the url here
         });
 
         // TODO is this the best place for this?
         // TODO should there be a way to tell locus not to trigger a "store changed" event if the route(or something else) is going to be changing anyway?
-        command.then ? command.then(response[this.schema[target].remote.names.record]) : undefined;
+        command.then ? command.then(typeCastRecord) : undefined;
       });
       // TODO handle errors (http/validation) If remote action fails need rollback plan
 
@@ -187,13 +192,13 @@ export default function locusConnect(
         else {
           // TODO what if we want to receive records of multiple types?
 
+          const formatRecordFieldNames = curry(processRemoteRecord)(recordTypeRemoteOptions.names.fields);
+
           const recordsPromise = (
             // TODO this is really just Jquery.getJSON - refactor to use fetch?
             request(url, 'GET')
               .then(responseBody => responseBody[query.target])
-              .then(curry(processRemoteRecords)(
-                recordTypeRemoteOptions.names.fields
-              ))
+              .then(records => records.map(formatRecordFieldNames))
               .then(records => {
                 return records.map(record => {
                   return typeCastFields(this.schema, query.target, record);

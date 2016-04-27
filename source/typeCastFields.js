@@ -17,7 +17,7 @@ export default function typeCastFields(schema, target, suppliedFields) {
       // TODO it would be nice to know if they was happening on data from server / form field / etc
 
       if (process.env.NODE_ENV !== 'production') {
-        warnings[target] = `The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
+        warnings[fieldName] = `The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
       }
 
       return {
