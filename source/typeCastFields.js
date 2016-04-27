@@ -5,7 +5,7 @@ export default function typeCastFields(schema, target, suppliedFields) {
   // TODO extract finding the schemaFields to outside this function
   const schemaFields = schema[target].fields;
 
-  if (__DEV__) { // TODO requires a __DEV__ global - set by webpack, what about during unit testing?
+  if (process.env.NODE_ENV !== 'production') { // TODO this is somehow being set in the browser, webpack?
     // TODO is this the best way?
     var warnings = {};
   }
@@ -16,7 +16,7 @@ export default function typeCastFields(schema, target, suppliedFields) {
       // TODO better way?
       // TODO it would be nice to know if they was happening on data from server / form field / etc
 
-      if (__DEV__) {
+      if (process.env.NODE_ENV !== 'production') {
         warnings[target] = `The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
       }
 
@@ -31,8 +31,8 @@ export default function typeCastFields(schema, target, suppliedFields) {
     };
   }, {});
 
-  if (__DEV__) {
-    Object.entries(warnings).forEach(([key, value]) => {
+  if (process.env.NODE_ENV !== 'production') {
+    Object.entries(warnings).forEach(([_key, value]) => {
       console.warn(value);
     });
   }
