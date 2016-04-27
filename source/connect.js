@@ -153,7 +153,16 @@ export default function locusConnect(
 
     // TODO dependency: requires locus.queries property on state (which contains previous queries)
     resolveQueries(queries) {
-      const promisedQueries = Object.entries(queries).map(([_, query]) => {
+      const promisedQueries = Object.entries(queries).map(([queryName, query]) => {
+
+        if (process.env.NODE_ENV !== 'production') {
+          const schemaManager = require('./createSchemaManager').default(this.schema);
+          const validateQuery = require('./validateQuery').default;
+          if (!validateQuery(query, schemaManager, queryName, Component.name)) { // TODO Function.name not supported by IE
+            throw new Error('Invalid query');
+          }
+        }
+
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
