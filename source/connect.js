@@ -135,7 +135,7 @@ export default function locusConnect(
         url(typeCastData, this.props),
         method,
         requestBody(typeCastData, this.props),
-        this.schema[command.target].adapter
+        this.getAdapter(command.target)
       );
 
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
@@ -171,6 +171,22 @@ export default function locusConnect(
     getRemoteOptions(recordType) {
       // TODO can knowledge of the schema here somehow be reduced?
       return this.schema[recordType].remote;
+    }
+
+    getAdapter(collectionName) {
+      // TODO memoize this funtion
+      if (this.schema.$adapter && this.schema[collectionName].adapter) {
+        return Object.assign(
+          this.schema.$adapter,
+          this.schema[collectionName].adapter
+        );
+      }
+      else if (!this.schema.$adapter) {
+        return this.schema[collectionName].adapter;
+      }
+      else {
+        return this.schema.$adapter;
+      }
     }
 
     // TODO dependency: requires locus.queries property on state (which contains previous queries)

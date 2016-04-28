@@ -6,15 +6,12 @@ export default function runAdapter(
   body,
   adapter
 ) {
-  console.log('in locus connect adapter');
   return request(
     url,
     method,
     body
   )
     .catch(error => {
-      console.log(error.status);
-      console.log('adapter ::', adapter);
       return adapter.handleError(error);
     });
 }
