@@ -38,6 +38,7 @@ import React from 'react';
 import _Loading from './Loading';
 import _Error from './Error';
 
+// TODO move towards dependency injection as much as makes sense
 import { connect as reduxConnect } from 'react-redux';
 import applyPropsToOperations from './applyPropsToOperations';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
@@ -46,6 +47,7 @@ import request from './request';
 import buildUrl from './buildUrl';
 import processRemoteRecord from './processRemoteRecord';
 import typeCastFields from './typeCastFields';
+import runAdapter from './runAdapter';
 
 import curry from 'lodash.curry';
 
@@ -119,15 +121,16 @@ export default function locusConnect(
 
       // do remote
       const { url, method, requestBody } = action.remote;
-      const remoteActionPromise = request(
+      const remoteActionPromise = runAdapter(
         url(typeCastData, this.props),
         method,
-        requestBody(typeCastData, this.props)
+        requestBody(typeCastData, this.props),
+        this.schema[command.target].adapter
       );
 
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
       // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
-      remoteActionPromise.then(response => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
+      return remoteActionPromise.then(response => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
         const record = response[this.schema[target].remote.names.record];
         const processedRecord = processRemoteRecord(this.schema[command.target].remote.names.fields, record);
         // TODO connect should only care about records, it should know nothing about parsing the response body
@@ -147,7 +150,8 @@ export default function locusConnect(
         command.then ? command.then(typeCastRecord) : undefined;
       });
       // TODO handle errors (http/validation) If remote action fails need rollback plan
-
+      // This is currently handled by returning this promise, if rejected it will give
+      // errors to calling function, which user will have to deal with. Needs to be documented.
     }
 
     getSchemaAction(recordType, action) {
@@ -239,8 +243,8 @@ export default function locusConnect(
         return <Loading />;
       }
       else if (this.state.error) {
-        // TODO allow custom error component
         // TODO retry functionality? automatic? manual?
+        // TODO pass in error message (different in dev/prod?)
         return <Error />;
       }
       else {
