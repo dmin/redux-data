@@ -68,6 +68,16 @@ export default function locusConnect(
       this.state = { loading: true, error: false };
       this.store = context.store;
 
+      if (process.env.NODE_ENV !== 'production') {
+        // TODO I don't have process.env.NODE_ENV defined as a var
+        // in webpack, so where is it coming from in the browser? react?
+        // TODO ensure that during build process this code is removed
+        // and the require statements below are not added to the webpack
+        // bundle.
+        const validateSchema = require('./schemaValidation/validateSchema').default;
+        validateSchema({ schema: this.store.getState().locus.schema });
+      }
+
       this.schema = this.store.getState().locus.schema; // TODO better way of accessing schema
     }
 
