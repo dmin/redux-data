@@ -2,13 +2,8 @@
   TODO: how should this be kept up to date and validated?
 */
 
-export default {
+import itemsCollectionSchema from './itemsCollectionSchema';
 
-  items: {
-    fields: [
-      { name: 'id', type: String },
-      { name: 'name', type: String },
-      { name: 'quantity', type: Number },
-    ],
-  },
+export default {
+  items: itemsCollectionSchema,
 };
