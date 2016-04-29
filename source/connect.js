@@ -113,12 +113,17 @@ export default function locusConnect(
     executeCommand(command, data) {
       const target = command.target; // TODO rename to collection
       const actionName = command.action; // TODO rename (action should have one meaning: a redux action)
+      const presetFields = command.preset || {};
 
       let typeCastData;
       // TODO action names should be case sensitive?
       if (actionName === 'update' || actionName === 'create') {
         // type cast fields
-        typeCastData = typeCastFields(this.schema, target, data);
+        typeCastData = typeCastFields(
+          this.schema,
+          target,
+          Object.assign(data, presetFields)
+        );
       }
       else if (action === 'delete') {
         // data for a delete action should be a string representing a record id.
