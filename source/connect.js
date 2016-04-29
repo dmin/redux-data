@@ -125,7 +125,7 @@ export default function locusConnect(
           Object.assign(data, presetFields)
         );
       }
-      else if (action === 'delete') {
+      else if (actionName === 'delete') {
         // data for a delete action should be a string representing a record id.
         typeCastData = String(data);
       }
@@ -146,10 +146,28 @@ export default function locusConnect(
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
       // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
       return remoteActionPromise.then(response => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
-        const record = response[this.schema[target].remote.names.record];
-        const processedRecord = processRemoteRecord(this.schema[command.target].remote.names.fields, record);
-        // TODO connect should only care about records, it should know nothing about parsing the response body
-        const typeCastRecord = typeCastFields(this.schema, target, processedRecord || {});
+
+        /*
+          response
+          schema
+          target
+          processRemoteRecord
+          typeCastFields
+          store.dispatch
+          command.action
+          command.then
+        */
+
+        var typeCastRecord;
+        if (actionName !== 'delete') {
+          var record = response[this.schema[target].remote.names.record];
+          var processedRecord = processRemoteRecord(this.schema[command.target].remote.names.fields, record);
+          // TODO connect should only care about records, it should know nothing about parsing the response body
+          typeCastRecord = typeCastFields(this.schema, target, processedRecord || {});
+        }
+        else {
+          typeCastRecord = data;
+        }
 
         this.store.dispatch({
           // TODO this seems fragile
