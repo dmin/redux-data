@@ -12,23 +12,30 @@ export default function typeCastFields(schema, target, suppliedFields) {
 
   const fields = Object.entries(suppliedFields).reduce((typeCastFields, [fieldName, fieldValue]) => {
     const schemaField = find(schemaFields, { name: fieldName });
-    if (!schemaField) { // TODO only in dev
-      // TODO better way?
-      // TODO it would be nice to know if they was happening on data from server / form field / etc
 
-      if (process.env.NODE_ENV !== 'production') {
+    // TODO if schema validation requires that all fields have a type defined then this check won't be necessary.
+    if (process.env.NODE_ENV !== 'production') {
+      if (!schemaField) {
         warnings[fieldName] = `The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
       }
+    }
 
+    // TODO if schema validation requires that all fields have a type defined then !schemaField check won't be necessary
+    // TODO How would Boolean false values be handled here?
+    // TODO Should schema define which fields are allow to be null?
+    // If the fieldValue is null/undefined don't perform type cast.
+    if (!fieldValue || !schemaField) {
       return {
         ...typeCastFields,
         [fieldName]: fieldValue,
       };
     }
-    return {
-      ...typeCastFields,
-      [fieldName]: schemaField.type(fieldValue),
-    };
+    else {
+      return {
+        ...typeCastFields,
+        [fieldName]: schemaField.type(fieldValue),
+      };
+    }
   }, {});
 
   if (process.env.NODE_ENV !== 'production') {
