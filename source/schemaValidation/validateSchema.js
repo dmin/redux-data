@@ -29,10 +29,13 @@ export default function validateSchema({
       throw new Error(`No global adapter or ${name} adapter provided in schema.`);
     }
     else if (descriptor.adapter) {
-      validateAdapter(name, Object.assign(
-        schema.$adapter || {},
-        descriptor.adapter
-      ));
+      validateAdapter(
+        name,
+        {
+          ...(schema.$adapter || {}),
+          ...descriptor.adapter,
+        }
+      );
     }
   });
 }
