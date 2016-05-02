@@ -1,6 +1,8 @@
 import superagent from 'superagent';
 
-
+/*
+  TODO this should be moved to adapter.
+*/
 export default function request(
   url,
   method,
@@ -36,24 +38,10 @@ export default function request(
       .set('X-CSRF-Token', csrfToken)
       .end((error, response) => {
         if (error) {
-          // TODO: error.response.body.errors is a convention I use, can't depend on it
-          // TODO: need to handle 404 not found errors
-
-          // TODO: need to dispatch here,
-          // how does redux form work?
-          // might need to save data in the store abour errors?
-
-          // Needs to be compatible with redux-form
           /*
-            An error might happen here for a couple of reasons:
-             - server gives a validation error (TODO:can we rely on http response codes to determine this? need config option)
-             - http error - request fails for any number of reasons.
-
-            Need to pass back errors here for either of the above circumstances
+            TODO: handle servers that respond with a success status code when there is a validation error
           */
           reject(error);
-          // TODO reject(error.response.body)
-          // need info from body if a validation error
         }
         // TODO: superagent parses JSON here, give user option to parse however they want? see http-client on npm
         resolve(response.body);

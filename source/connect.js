@@ -44,12 +44,13 @@ import applyPropsToOperations from './applyPropsToOperations';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
 import buildSelector from './buildSelector';
 import request from './request';
-import buildUrl from './buildUrl';
-import processRemoteRecord from './processRemoteRecord';
 import typeCastFields from './typeCastFields';
-import runAdapter from './runAdapter';
 
 import curry from 'lodash.curry';
+
+if (process.env.NODE_ENV !== 'production') {
+  var assert = require('./assert').default;
+}
 
 export default function locusConnect(
   Component,
@@ -96,7 +97,7 @@ export default function locusConnect(
       this.commands = applyPropsToOperations(
         commandDescriptors,
         props,
-        command => data => this.executeCommand(command, data)
+        (command, commandName) => data => this.executeCommand(command, data, commandName)
       );
 
       // TODO if a query/command does not rely on props allow it to be passed as an object, so it doesn't need to go through applyPropsToOperationDescriptors
@@ -110,102 +111,122 @@ export default function locusConnect(
       this.ConnectedComponent = createReduxConnect(selector, Component);
     }
 
-    executeCommand(command, data) {
-      const target = command.target; // TODO rename to collection
-      const actionName = command.action; // TODO rename (action should have one meaning: a redux action)
+
+    updateRecord(...args) {
+      return this.saveRecord('update', ...args);
+    }
+
+
+    createRecord(...args) {
+      return this.saveRecord('create', ...args);
+    }
+
+
+    saveRecord(mutationType, adapter, recordType, rawFields, rawPresetFields) {
+      const typeCastRecordTypeFields = curry(typeCastFields)(
+        this.schema,
+        recordType
+      );
+
+      // TODO is there a reason to type cast the fields before they are sent to the server (other than optimitic updating?)
+      // Should something like ember's serializers be implemented?
+      const fields = typeCastRecordTypeFields(
+        Object.assign({}, rawFields, rawPresetFields)
+      );
+
+      const serverFields = adapter.formatRecordForServer(fields);
+
+      // Update record on server
+      return request(
+        adapter[`${mutationType}Record`].url(adapter, serverFields, this.props),
+        adapter[`${mutationType}Record`].method,
+        adapter[`${mutationType}Record`].requestBody(adapter, serverFields, this.props)
+      )
+      // TODO would it make sense to format field names and do value type casting in one step?
+      .then(responseBody => adapter[`${mutationType}Record`].responseBody(adapter, responseBody))
+      .then(adapter.formatRecordForClient)
+      .then(typeCastRecordTypeFields)
+
+      // Then update record in store
+      .then(record => {
+        this.store.dispatch({
+          type: `LOCUS_${mutationType.toUpperCase()}_RECORD`,
+          target: recordType, // TODO rename to recordType
+          data: record, // TODO rename to record
+        });
+
+        return record;
+      });
+    }
+
+
+    deleteRecord(adapter, recordType, rawId, _rawPresetFields) {
+      const recordId = String(rawId);
+
+      // Update record on server
+      return request(
+        adapter.deleteRecord.url(adapter, recordId, this.props),
+        adapter.deleteRecord.method,
+        adapter.deleteRecord.requestBody(adapter, recordId, this.props)
+      )
+
+      .then(_ => {
+        this.store.dispatch({
+          type: 'LOCUS_DELETE_RECORD',
+          target: recordType, // TODO rename to recordType
+          data: recordId, // TODO rename to record
+        });
+      });
+    }
+
+
+    executeCommand(command, data, commandName) { // TODO rename data to input
+      const target = command.target; // TODO rename to recordType
+      const actionName = command.action; // TODO rename to mutation or mutationType
       const presetFields = command.preset || {};
 
-      let typeCastData;
-      // TODO action names should be case sensitive?
-      if (actionName === 'update' || actionName === 'create') {
-        // type cast fields
-        typeCastData = typeCastFields(
-          this.schema,
-          target,
-          Object.assign(data, presetFields)
-        );
-      }
-      else if (actionName === 'delete') {
-        // data for a delete action should be a string representing a record id.
-        typeCastData = String(data);
+      const adapter = this.adapterFor(target);
+
+      if (process.env.NODE_ENV !== 'production') {
+        // TODO validate recordType against schema
+        // TODO should development errors be tested? Should there be an option to use them in production? Is there a good reason to do that?
+        assert(/^(create|update|delete)$/i.test(actionName), `"${actionName}" is not a valid mutation. Must be one of the following: create, update, delete. See the "${commandName}" command for "${Component.name}"`);
+        // TODO can the message also indicate if the application adapter or a custom adapter for this record type is being used?
+        assert(adapter[`${actionName}Record`], `The adapter for "${target}" does not support the "${actionName}" mutation. See the "${commandName}" command for "${Component.name}"`);
       }
 
-      // TODO this code knows a lot about how actions/commands are structured
-      const action = this.getSchemaAction(target, command.action);
-      // if optimistic do that here
+      return this[`${actionName}Record`](adapter, target, data, presetFields)
+        .then(record => {
+          // TODO should there be a way to tell locus not to trigger a "store changed" event if the route(or something else) is going to be changing anyway? The goal would be to reduce render churn, is this happening?
+          command.then ? command.then(record) : undefined;
 
-      // do remote
-      const { url, method, requestBody } = action.remote;
-      const remoteActionPromise = runAdapter(
-        url(typeCastData, this.props),
-        method,
-        requestBody(typeCastData, this.props),
-        this.getAdapter(command.target)
-      );
+          return record;
+        })
+        .catch(error => {
+          return adapter.handleError(error);
+        });
 
       // TODO determine if a remote action is expected to return records - how can an action indicate it wants to run a query after the action is complete? if server supports this could be done in one request, if not, two requests
       // TODO response here might not be records - it could be the result of a query, or something else the server decides to send back, need to be able to configure this
-      return remoteActionPromise.then(response => { // TODO right now we don't care what the server sends back - need to check response type, validation errors, and if the user wants to work with the data that came back
 
-        /*
-          response
-          schema
-          target
-          processRemoteRecord
-          typeCastFields
-          store.dispatch
-          command.action
-          command.then
-        */
-
-        var typeCastRecord;
-        if (actionName !== 'delete') {
-          var record = response[this.schema[target].remote.names.record];
-          var processedRecord = processRemoteRecord(this.schema[command.target].remote.names.fields, record);
-          // TODO connect should only care about records, it should know nothing about parsing the response body
-          typeCastRecord = typeCastFields(this.schema, target, processedRecord || {});
-        }
-        else {
-          typeCastRecord = data;
-        }
-
-        this.store.dispatch({
-          // TODO this seems fragile
-          type: `LOCUS_${command.action.toUpperCase()}_RECORD`,
-          target: target,
-          data: typeCastRecord, // TODO this is a ridiculous dependency, but it should work for create/update/delete - as far as using rails is concerned.
-          // TODO using something like redux-react-router could update the url here
-          // TODO using something like redux-react-router could update the url here
-        });
-
-        // TODO is this the best place for this?
-        // TODO should there be a way to tell locus not to trigger a "store changed" event if the route(or something else) is going to be changing anyway?
-        command.then ? command.then(typeCastRecord) : undefined;
-      });
       // TODO handle errors (http/validation) If remote action fails need rollback plan
       // This is currently handled by returning this promise, if rejected it will give
       // errors to calling function, which user will have to deal with. Needs to be documented.
     }
 
-    getSchemaAction(recordType, action) {
-      return this.schema[recordType].actions[action];
-    }
 
-    getRemoteOptions(recordType) {
-      // TODO can knowledge of the schema here somehow be reduced?
-      return this.schema[recordType].remote;
-    }
-
-    getAdapter(collectionName) {
+    adapterFor(recordType) {
       // TODO memoize this funtion
-      if (this.schema.$adapter && this.schema[collectionName].adapter) {
+      // TODO can adapter be an instance of an adaper made for this record type, can avoid passing in recordType, since we're already creating an adapter on the fly in adapterFor
+      if (this.schema.$adapter && this.schema[recordType].adapter) {
         return Object.assign(
+          {},
           this.schema.$adapter,
-          this.schema[collectionName].adapter
+          this.schema[recordType].adapter
         );
       }
       else if (!this.schema.$adapter) {
-        return this.schema[collectionName].adapter;
+        return this.schema[recordType].adapter;
       }
       else {
         return this.schema.$adapter;
@@ -232,8 +253,10 @@ export default function locusConnect(
           queries: previousQueries,
         } = this.store.getState().locus;
 
-        const recordTypeRemoteOptions = this.getRemoteOptions(query.target);
-        const url = buildUrl(query, recordTypeRemoteOptions); // TODO need format?
+        const adapter = this.adapterFor(query.target);
+
+        // TODO currently the adapter is responsible for formatting field names for the server, should this be done by redux-data?
+        const url = adapter.queryRecords.url(adapter, query);
 
         // TODO: Returns a promise or undefined
         const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, url);
@@ -245,13 +268,11 @@ export default function locusConnect(
         else {
           // TODO what if we want to receive records of multiple types?
 
-          const formatRecordFieldNames = curry(processRemoteRecord)(recordTypeRemoteOptions.names.fields);
-
           const recordsPromise = (
             // TODO this is really just Jquery.getJSON - refactor to use fetch?
             request(url, 'GET')
               .then(responseBody => responseBody[query.target])
-              .then(records => records.map(formatRecordFieldNames))
+              .then(records => records.map(adapter.formatRecordForClient))
               .then(records => {
                 return records.map(record => {
                   return typeCastFields(this.schema, query.target, record);
@@ -269,7 +290,8 @@ export default function locusConnect(
           );
 
           // Adds query to list of pending/cached queries
-          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', url, recordsPromise }); // TODO
+          // TODO rename this action to some thing like ADD_QUERY
+          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', url, recordsPromise });
 
           return recordsPromise;
         }
