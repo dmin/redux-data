@@ -12,7 +12,7 @@ export default function applyPropsToOperations(
         const op = applyPropsToOperation(props);
         return {
           ...operations,
-          [operationName]: createOperation ? createOperation(op) : op,
+          [operationName]: createOperation ? createOperation(op, operationName) : op,
         };
       },
       {}
