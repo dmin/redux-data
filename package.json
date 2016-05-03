@@ -35,10 +35,12 @@
   "dependencies": {
     "babel-runtime": "^6.6.1",
     "deep-equal": "^1.0.1",
+    "lodash.camelcase": "^4.1.1",
     "lodash.curry": "^4.0.1",
     "lodash.filter": "^4.3.0",
     "lodash.find": "^4.3.0",
     "lodash.flow": "^3.3.0",
+    "lodash.snakecase": "^4.0.1",
     "lodash.unionby": "^4.4.0",
     "superagent": "^1.8.3"
   }
