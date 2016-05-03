@@ -1,6 +1,7 @@
 import pipe from 'lodash.flow';
 import curry from 'lodash.curry';
-import filter from 'lodash.filter';
+
+import whereSelector from './whereSelector';
 
 const target = curry(
   (target, recordsGroupedByType) => recordsGroupedByType[target]
@@ -23,8 +24,7 @@ const offset = curry((offset, records) => records.slice(offset));
 const limit = curry((limit, records) => records.slice(0, limit));
 
 const where = curry((criteria, records) => {
-  // TODO currently only supports equality checks (conditions? criterion? test?)
-  return filter(records, criteria);
+  return whereSelector(criteria, records);
 });
 
 /*
