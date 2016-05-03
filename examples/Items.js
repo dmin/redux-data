@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from '../source/index';
 
 const Items = ({ items1, items2, firstItem }) => {
-
   return (
     <div>
       <h1>First Item</h1>
@@ -28,13 +27,10 @@ Items.propTypes = {
   firstItem: React.PropTypes.object.isRequired,
 };
 
-// TODO need to handle mutations
 export default connect(Items, {
   queries: {
-    // TODO function that validates format/options of queries against schema
-    // would be nice to use that function at both build and run time (in dev mode)
     items1: _props => ({
-      target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
+      target: 'items',
       select: ['id', 'name'],
       // where: { name: 'Lug' }, // TODO Should offset be ignored when the total number of records found is less that the offset? At the very least give a warning
       offset: 6,
@@ -50,18 +46,8 @@ export default connect(Items, {
 
     firstItem: _props => ({
       target: 'items',
-      where: { id: '7' }, // TODO validate queries for type correctness
+      where: { id: '7' },
       transform: 'first',
     }),
   },
-
-  // commands: {
-  //   updateItem: _props => ({
-  //     target: 'items',
-  //     action: 'update',
-  //     // TODO preset: {
-  //     //   id: props.params.id,
-  //     // },
-  //   }),
-  // },
 });
