@@ -2,6 +2,8 @@
   Description: This function is meant to aid developers in catching errors in
   queries during development. It is not intended to be invoked in production.
 
+  TODO should not contain any functions (or non-serializeable tokens) (check for valid JSON?)
+
   TODO can we make a Flow/TypeScript type in place of this? Would they be able to access the schema?
   If so, can we keep this method to for runtime checks but somehow rely on the type definitions?
 

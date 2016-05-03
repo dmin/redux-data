@@ -16,7 +16,8 @@ export default function typeCastFields(schema, target, suppliedFields) {
     // TODO if schema validation requires that all fields have a type defined then this check won't be necessary.
     if (process.env.NODE_ENV !== 'production') {
       if (!schemaField) {
-        warnings[fieldName] = `The "${target}" collection does not have a the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
+        // TODO list the command or query where this originated.
+        warnings[fieldName] = `REDUX-DATA: The "${target}" collection does not have the field "${fieldName}" specified in the schema. Cannot perform type cast.`;
       }
     }
 

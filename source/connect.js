@@ -185,11 +185,14 @@ export default function locusConnect(
       const actionName = command.action; // TODO rename to mutation or mutationType
       const presetFields = command.preset || {};
 
+      if (process.env.NODE_ENV !== 'production') {
+        assert(this.schema[target], `"${target} is not a record type listed in the schema. See the "${commandName}" command for "${Component.name}"`);
+      }
+
       const adapter = this.adapterFor(target);
 
       if (process.env.NODE_ENV !== 'production') {
-        // TODO validate recordType against schema
-        // TODO should development errors be tested? Should there be an option to use them in production? Is there a good reason to do that?
+        // TODO should development errors be tested (i.e. these assert statements)? Should there be an option to use them in production? Is there a good reason to do that?
         assert(/^(create|update|delete)$/i.test(actionName), `"${actionName}" is not a valid mutation. Must be one of the following: create, update, delete. See the "${commandName}" command for "${Component.name}"`);
         // TODO can the message also indicate if the application adapter or a custom adapter for this record type is being used?
         assert(adapter[`${actionName}Record`], `The adapter for "${target}" does not support the "${actionName}" mutation. See the "${commandName}" command for "${Component.name}"`);
