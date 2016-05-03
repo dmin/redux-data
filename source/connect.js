@@ -272,9 +272,9 @@ export default function locusConnect(
           // TODO what if we want to receive records of multiple types?
 
           const recordsPromise = (
-            // TODO this is really just Jquery.getJSON - refactor to use fetch?
+            // TODO can 'request' be replaced with 'fetch' (would need to use polyfill)?
             request(url, 'GET')
-              .then(responseBody => responseBody[query.target])
+              .then(responseBody => adapter.queryRecords.responseBody(adapter, responseBody))
               .then(records => records.map(adapter.formatRecordForClient))
               .then(records => {
                 return records.map(record => {
