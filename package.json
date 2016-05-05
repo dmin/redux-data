@@ -1,14 +1,16 @@
 {
   "name": "redux-data",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "files": [
     "build/"
   ],
   "main": "build/index.js",
   "scripts": {
-    "babel": "rm -rf build && babel source --watch --out-dir build",
-    "legend": "server ./examples ./examples/data"
+    "compile": "rm -rf build && babel source --out-dir build",
+    "watch": "rm -rf build && babel source --watch --out-dir build",
+    "legend": "server ./examples ./examples/data",
+    "prepublish": "npm run compile"
   },
   "author": "David Mininger",
   "license": "ISC",
