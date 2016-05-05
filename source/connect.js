@@ -52,7 +52,7 @@ if (process.env.NODE_ENV !== 'production') {
   var assert = require('./assert').default;
 }
 
-export default function locusConnect(
+export default function connect(
   Component,
   {
     commands: commandDescriptors = {},
@@ -63,7 +63,7 @@ export default function locusConnect(
   }
 ) {
 
-  class LocusConnect extends React.Component {
+  class ReduxData extends React.Component {
     constructor(props, context) {
       super(props, context);
       this.state = { loading: true, error: false };
@@ -76,10 +76,10 @@ export default function locusConnect(
         // and the require statements below are not added to the webpack
         // bundle.
         const validateSchema = require('./schemaValidation/validateSchema').default;
-        validateSchema({ schema: this.store.getState().locus.schema });
+        validateSchema({ schema: this.store.getState()._data_.schema });
       }
 
-      this.schema = this.store.getState().locus.schema; // TODO better way of accessing schema
+      this.schema = this.store.getState()._data_.schema; // TODO better way of accessing schema
     }
 
     componentWillMount() {
@@ -105,7 +105,7 @@ export default function locusConnect(
       this.resolveQueries(queries);
 
       const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
-      const selector = state => recordsSelector(state.locus.recordsGroupedByType); // TODO it would be great to extract this knowledge of the redux store even further
+      const selector = state => recordsSelector(state._data_.recordsGroupedByType); // TODO it would be great to extract this knowledge of the redux store even further
 
       // TODO can the dependency on react-redux.connect be extracted from this file?
       this.ConnectedComponent = createReduxConnect(selector, Component);
@@ -150,7 +150,7 @@ export default function locusConnect(
       // Then update record in store
       .then(record => {
         this.store.dispatch({
-          type: `LOCUS_${mutationType.toUpperCase()}_RECORD`,
+          type: `DATA_${mutationType.toUpperCase()}_RECORD`,
           target: recordType, // TODO rename to recordType
           data: record, // TODO rename to record
         });
@@ -172,7 +172,7 @@ export default function locusConnect(
 
       .then(_ => {
         this.store.dispatch({
-          type: 'LOCUS_DELETE_RECORD',
+          type: 'DATA_DELETE_RECORD',
           target: recordType, // TODO rename to recordType
           data: recordId, // TODO rename to record
         });
@@ -200,7 +200,7 @@ export default function locusConnect(
 
       return this[`${actionName}Record`](adapter, target, data, presetFields)
         .then(record => {
-          // TODO should there be a way to tell locus not to trigger a "store changed" event if the route(or something else) is going to be changing anyway? The goal would be to reduce render churn, is this happening?
+          // TODO should there be a way to tell Redux-Data not to trigger a "store changed" event if the route(or something else) is going to be changing anyway? The goal would be to reduce render churn, is this happening?
           command.then ? command.then(record) : undefined;
 
           return record;
@@ -236,7 +236,7 @@ export default function locusConnect(
       }
     }
 
-    // TODO dependency: requires locus.queries property on state (which contains previous queries)
+    // TODO dependency: requires _data_.queries property on state (which contains previous queries)
     resolveQueries(queries) {
       const promisedQueries = Object.entries(queries).map(([queryName, query]) => {
 
@@ -251,21 +251,21 @@ export default function locusConnect(
         // TODO might be possible to resolve queries async in a webworker
 
         // TODO is there a performance hit for getting the state in each iteration of this loop?
-        // TODO why do I need to get fresh state of locus.queries each iteration?
+        // TODO why do I need to get fresh state of _data_.queries each iteration?
         const {
           queries: previousQueries,
-        } = this.store.getState().locus;
+        } = this.store.getState()._data_;
 
         const adapter = this.adapterFor(query.target);
 
         // TODO currently the adapter is responsible for formatting field names for the server, should this be done by redux-data?
+        console.log('url ::', adapter.queryRecords.url(adapter, query));
         const url = adapter.queryRecords.url(adapter, query);
 
         // TODO: Returns a promise or undefined
         const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, url);
 
         if (cachedOrPendingQuery) {
-          console.log('use cache');
           return cachedOrPendingQuery;
         }
         else {
@@ -283,7 +283,7 @@ export default function locusConnect(
               })
               .then(records => {
                 this.store.dispatch({
-                  type: 'LOCUS_RECEIVE_REMOTE_RECORDS',
+                  type: 'DATA_RECEIVE_REMOTE_RECORDS',
                   target: query.target,
                   records,
                 });
@@ -329,9 +329,9 @@ export default function locusConnect(
     }
   }
 
-  LocusConnect.contextTypes = {
+  ReduxData.contextTypes = {
     store: React.PropTypes.object.isRequired, // TODO better validation
   };
 
-  return LocusConnect;
+  return ReduxData;
 }

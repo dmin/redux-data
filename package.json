@@ -1,6 +1,6 @@
 {
-  "name": "@locus/locus",
-  "version": "0.0.1",
+  "name": "redux-data",
+  "version": "0.0.0",
   "description": "",
   "files": [
     "build/"

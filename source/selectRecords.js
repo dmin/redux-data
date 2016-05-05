@@ -31,7 +31,7 @@ const where = curry((criteria, records) => {
  TODO transforms are different than other selectors, for instance,
  the 'first' transformer on the client doesn't care about offset or limit
  but when being sent to the server it should always pass a limit of one
- (unless the server understands locus's 'first' transformer natively)
+ (unless the server understands Redux-Data's 'first' transformer natively)
  See additional note below where transform is curried/invoked
 */
 const transform = curry((transformation, records) => {

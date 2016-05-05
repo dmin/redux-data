@@ -12,7 +12,7 @@ import Items from './Items';
 
 // TODO: use a store enhancer to setup reducers, check for name colisions? See discussion at: https://github.com/reactjs/redux/issues/678
 const combinedReducer = combineReducers({
-  locus: createReducer(schema),
+  _data_: createReducer(schema),
 });
 
 const store = createStore(combinedReducer);

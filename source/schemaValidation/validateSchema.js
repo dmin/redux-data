@@ -25,8 +25,7 @@ export default function validateSchema({
     // No global adapter or collection adapter provided
     if (!schema.$adapter && !descriptor.adapter) {
       // TODO better error with link to docs
-      // TODO Errors should start with "LOCUS:"
-      throw new Error(`No global adapter or ${name} adapter provided in schema.`);
+      throw new Error(`REDUX-DATA: No global adapter or ${name} adapter provided in schema.`);
     }
     else if (descriptor.adapter) {
       validateAdapter(

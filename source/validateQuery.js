@@ -68,7 +68,7 @@ export default function validateQuery(query, schemaManager, queryName, component
         messages.push({
           type: 'warn',
           // TODO update message about default limit clause
-          message: `You did not specify a 'limit' clause in the "${queryName}" query for the component "${componentName}".`,
+          message: `REDUX-DATA: You did not specify a 'limit' clause in the "${queryName}" query for the component "${componentName}".`,
         });
       },
       type: type => typeof type === 'number',

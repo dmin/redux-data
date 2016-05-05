@@ -21,6 +21,7 @@ export default function whereSelector(criteria = {}, records) {
 
     return Object.entries(criteria).every(([field, conditions]) => {
 
+      // TODO Handle this case with a 'query extension' that translates the query into a standard format before it gets here
       if (typeof conditions !== 'object') {
         return conditionTypes.equal(record[field], conditions);
       }

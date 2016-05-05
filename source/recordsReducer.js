@@ -5,14 +5,14 @@ import find from 'lodash.find';
 export default function (recordsGroupedByType = {}, action) {
   switch (action.type) {
 
-    case 'LOCUS_RECEIVE_REMOTE_RECORDS':
+    case 'DATA_RECEIVE_REMOTE_RECORDS':
       // TODO performance - persistant data structure would be nice here
       return {
         ...recordsGroupedByType,
         [action.target]: unionBy(action.records, recordsGroupedByType[action.target] || [], 'id'),
       };
 
-    case 'LOCUS_UPDATE_RECORD':
+    case 'DATA_UPDATE_RECORD':
       const records = recordsGroupedByType[action.target] || [];
       // TODO need to enforce that data.id is included with update actions
       const record = find(records, { id: action.data.id }) || {}; // TODO extract typecasting to somewhere else // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the cache?
@@ -23,10 +23,10 @@ export default function (recordsGroupedByType = {}, action) {
         [action.target]: unionBy([updatedRecord], records, 'id'),
       };
 
-    case 'LOCUS_DELETE_RECORD':
-      // TODO I'm using || [] here because I'm not yet fetching some data through locus, so its not there when being deleted
+    case 'DATA_DELETE_RECORD':
+      // TODO I'm using || [] here because I'm not yet fetching some data through Redux-Data, so its not there when being deleted
       // Should this be a problem in the wild? should we check to make sure the file your trying to delete is actually in the store? should we still send request to server if its not?
-      // Is there ever a time you'd want to delete something through locus when its not in locus's record store slice?
+      // Is there ever a time you'd want to delete something through Redux-Data when its not in Redux-Data's record store slice?
       const dRecords = recordsGroupedByType[action.target] || [];
       return {
         ...recordsGroupedByType,
