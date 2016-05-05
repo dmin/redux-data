@@ -3,6 +3,7 @@
   "version": "0.0.7",
   "description": "A library that works with redux to load data from your server.",
   "main": "build/index",
+  "repository": "dmin/redux-data",
   "scripts": {
     "compile": "rm -rf build && babel source --out-dir build",
     "watch": "rm -rf build && babel source --watch --out-dir build",
