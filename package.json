@@ -1,11 +1,8 @@
 {
   "name": "redux-data",
-  "version": "0.0.1",
-  "description": "",
-  "files": [
-    "build/"
-  ],
-  "main": "build/index.js",
+  "version": "0.0.6",
+  "description": "A library that works with redux to load data from your server.",
+  "main": "build/index",
   "scripts": {
     "compile": "rm -rf build && babel source --out-dir build",
     "watch": "rm -rf build && babel source --watch --out-dir build",
