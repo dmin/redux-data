@@ -1,16 +1,11 @@
-import camelCase from 'lodash.camelcase';
-import snakeCase from 'lodash.snakecase';
+const camelCase = require('lodash.camelcase');
+const snakeCase = require('lodash.snakeCase');
+const entries = require('babel-runtime/core-js/object/entries').default;
 
 // TODO how to handle urls for nested resources in rails/similar apps
 // TODO simple config that defines what capabilities a server has
 // TODO turn this into a generic REST adapter, use ember-data's REST adapter as reference point
-
-
-
 export default {
-
-  // rootKey: true, // TODO might be a string which is the name of the expected root key?
-  // limit: true, // TODO what should be default? TODO: what if server doesn't accept option, but always limits number of results?
 
   baseUrl: '',
 
@@ -38,21 +33,23 @@ export default {
     // can a function be created at build time to do this efficiently?
     // would it be more efficient to create a new key and delete the old key, mutating the object?
     // best would be to make sure the server returns proper field names and there is an option to turn this off (and remove from build?)
-    return Object.entries(record).reduce((formattedRecord, [key, value]) => {
-      return {
-        ...formattedRecord,
-        [snakeCase(key)]: value,
-      };
+    return entries(record).reduce((formattedRecord, [key, value]) => {
+      return Object.assign(
+        {},
+        formattedRecord,
+        { [snakeCase(key)]: value }
+      );
     }, {});
   },
 
 
   formatRecordForClient(record) {
-    return Object.entries(record).reduce((formattedRecord, [key, value]) => {
-      return {
-        ...formattedRecord,
-        [camelCase(key)]: value,
-      };
+    return entries(record).reduce((formattedRecord, [key, value]) => {
+      return Object.assign(
+        {},
+        formattedRecord,
+        { [camelCase(key)]: value }
+      );
     }, {});
   },
 
@@ -60,7 +57,7 @@ export default {
   updateRecord: {
     // TODO need to assert that fields has id property
     method: 'PATCH', // TODO or PUT?
-    url: (adapter, fields, _props) => `/${adapter.pluralName}/${fields.id}.json`,
+    url: (adapter, fields, _props) => `${adapter.baseUrl}/${adapter.pluralName}/${fields.id}.json`,
     requestBody: (adapter, fields, _props) => ({ [adapter.singularName]: fields }),
 
     // TODO document that super agent already parses JSON, and how to handle other data types
@@ -70,7 +67,7 @@ export default {
 
   createRecord: {
     method: 'POST', // TODO or PUT?
-    url: (adapter, _fields, _props) => `/${adapter.pluralName}.json`,
+    url: (adapter, _fields, _props) => `${adapter.baseUrl}/${adapter.pluralName}.json`,
     requestBody: (adapter, fields, _props) => ({ [adapter.singularName]: fields }),
 
     // TODO document that super agent already parses JSON, and how to handle other data types
@@ -80,7 +77,7 @@ export default {
 
   deleteRecord: {
     method: 'DELETE', // TODO or PUT?
-    url: (adapter, recordId, _props) => `/${adapter.pluralName}/${recordId}.json`,
+    url: (adapter, recordId, _props) => `${adapter.baseUrl}/${adapter.pluralName}/${recordId}.json`,
     // TODO it be great to omit these if not needed.
     requestBody: _ => _, //
     responseBody: _ => _,
@@ -99,7 +96,18 @@ export default {
       const queryString = queryStringPrep ? `?${queryStringPrep}` : '';
 
       // TODO extract all this logic to adapter so user can have complete control over how urls are built
-      return `${adapter.baseUrl}/${adapter.pluralName}.json${queryString}`;
+      const preparedUrl = `${adapter.baseUrl}/${adapter.pluralName}.json${queryString}`;
+
+      if (process.env.NODE_ENV !== 'production') {
+        // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+        if (preparedUrl.length > 2048) {
+          // TODO centralize warnings
+          // TODO should this be error?
+          console.warn('REDUX-DATA: Query produced a URL longer than 2048 characters. This may cause problems in older browsers (Internet Explorer).');
+        }
+      }
+
+      return preparedUrl;
     },
     responseBody: (adapter, body) => body[adapter.pluralName],
   },
@@ -107,11 +115,26 @@ export default {
 };
 
 function whereQueryString(criteria) {
-  // TODO needs to handle multiple types of criterion
-  const queryParams = Object.entries(criteria).reduce((queryParams, [key, value]) => {
+  /*
+    TODO this function expects validated criteria, make sure query validator is up to date, how can it be ensured that they stay in sync?
+    TODO: if making a ember-data compatable rest adapter the schema validator will need to prevent users from naming fields with query keywords like 'where' and 'limit'
+  */
+  const queryParams = entries(criteria).reduce((queryParams, [field, conditions]) => {
     // TODO uri encoding?
-    return queryParams.concat(`query[${snakeCase(key)}]=${value}`);
+
+    if (typeof conditions !== 'object') {
+      // TODO Handle this case with a 'query extension' that translates the query into a standard format before it gets here
+      queryParams.push(`query[where][${snakeCase(field)}][equal]=${conditions}`);
+    }
+    else {
+      entries(conditions).forEach(([name, value]) => {
+        queryParams.push(`query[where][${snakeCase(field)}][${name}]=${value}`);
+      });
+    }
+
+    return queryParams;
   }, []);
 
   return queryParams.join('&');
+  // TODO log/warn length of url - config option to move to POST when too long?
 }

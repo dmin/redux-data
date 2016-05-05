@@ -259,7 +259,6 @@ export default function connect(
         const adapter = this.adapterFor(query.target);
 
         // TODO currently the adapter is responsible for formatting field names for the server, should this be done by redux-data?
-        console.log('url ::', adapter.queryRecords.url(adapter, query));
         const url = adapter.queryRecords.url(adapter, query);
 
         // TODO: Returns a promise or undefined

@@ -3,7 +3,7 @@
   TODO web based schema editor
 */
 
-import defaultAdapter from './defaultAdapter';
+import { defaultAdapter } from '../source/index';
 
 export default {
 
