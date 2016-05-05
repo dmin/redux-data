@@ -6,7 +6,7 @@ Redux-Data is a companion to Redux that allows you to declare the data (i.e. rec
 For a quick look at what Redux-Data can do take a look at the [usage](#usage) section below.
 
 ## Installation / Config
-These installation instructions assume that you have previously setup redux and react-redux and/or have a basic understanding of how to use them. If you're already using Redux it's easy to incrementally add Redux-Data to your application.
+These installation instructions assume that you have previously setup Redux and React-Redux and/or have a basic understanding of how to use them. If you're already using Redux it's easy to incrementally add Redux-Data to your application.
 
 ### Dependencies
 First, install the required peer dependencies, if you don't already have them installed, as well as Redux-Data.
@@ -58,7 +58,7 @@ render(
 ### Schema
 Your schema tells Redux-Data the types of records your application uses, as well as information about how to fetch and mutate those records located on your server.
 
-A Redux-Data schema is simply an object. Each property of the schema object is the name of a record type, and the corresponding value provides information about the record type. The special `$adapter` property of the schema identifies the application wide default adapter (more information on adapters in a moment). See documentation about the schema for more information. The schema for our example installation is as follows:
+A Redux-Data schema is simply an object. Each property of the schema object is the name of a record type, and the corresponding value provides information about the record type. The special `$adapter` property of the schema identifies the application wide default adapter (more information on adapters in a moment). The schema for our example installation is as follows:
 
 ```javascript
 // schema.js

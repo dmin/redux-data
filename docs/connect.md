@@ -1,6 +1,6 @@
 # `connect()`
 
-Redux-Data interfaces with your components in a way that is very similar to React-Redux. Redux-Data exports a function, `connect`, which accepts a React component class, and a list of operations and creates a 'higher-order component'. This higher order component is simply a react component which manages fetching a mutating data and then renders your component. Lets say you have a component, `Items`, which expects an array of `items` and a `deleteItem` function to be passed in as part of the `props` object.
+Redux-Data interfaces with your components in a way that is very similar to React-Redux. Redux-Data exports a function, `connect`, which accepts a React component class, and a list of operations and creates a 'higher-order component'. This higher order component is simply a react component which manages fetching and mutating data and then renders your component. Lets say you have a component, `Items`, which expects an array of `items` and a `deleteItem` function to be passed in as part of the `props` object.
 
 ```javascript
 // Items.js (without Redux-Data)
