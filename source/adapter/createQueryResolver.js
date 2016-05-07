@@ -20,11 +20,6 @@ class QueryResolver {
       .then(this._parseResponseBody)
       .then(records => records.map(this._adapter.formatRecordForClient));
   }
-
-  // TODO remove this function when checking the cache no longer relies on comparing URLS
-  url(_, query) {
-    return _computeUrl(this._adapter, query);
-  }
 }
 
 

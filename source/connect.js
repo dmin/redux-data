@@ -258,11 +258,9 @@ export default function connect(
 
         const adapter = this.adapterFor(query.target);
 
-        // TODO currently the adapter is responsible for formatting field names for the server, should this be done by redux-data?
-        const url = adapter.queryUrl(adapter, query);
-
         // TODO: Returns a promise or undefined
-        const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, url);
+        const serializedQuery = JSON.stringify(query);
+        const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, serializedQuery);
 
         if (cachedOrPendingQuery) {
           return cachedOrPendingQuery;
@@ -291,7 +289,7 @@ export default function connect(
 
           // Adds query to list of pending/cached queries
           // TODO rename this action to some thing like ADD_QUERY
-          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', url, recordsPromise });
+          this.store.dispatch({ type: 'FETCH_REMOTE_RECORDS', serializedQuery, recordsPromise });
 
           return recordsPromise;
         }

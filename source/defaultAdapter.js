@@ -87,22 +87,13 @@ export default {
 
 
   /*
-    TODO how to error when adapter doesn't support a feature?
-    TODO this property is not consistent with updateRecord, createRecord, deleteRecord
-    TODO question: queryRecordsURL in an adapter is responsible for tranlating client field names to server field names, can this task be moved to redux-data?
+    TODO how to error when adapter doesn't support a feature? Probably should
+    give error during query validation.
   */
   queryRecords(query) {
     return createQueryResolver({
       adapter: this,
       parseResponseBody: (adapter, body) => body[adapter.pluralName], // TODO docs: this gets parsed JSON (from superagent)
     }).resolve(query);
-  },
-
-  // TODO remove when cache no longer relies on checking URLs
-  queryUrl(adapter, query) {
-    return createQueryResolver({
-      adapter: this,
-      parseResponseBody: (adapter, body) => body[adapter.pluralName],
-    }).url(adapter, query);
   },
 };

@@ -1,6 +1,6 @@
-export default function findCachedOrPendingQuery(previousQueries, url) {
+export default function findCachedOrPendingQuery(previousQueries, serializedQuery) {
   const [match] = previousQueries.filter(previousQuery => {
-    return previousQuery.url === url;
+    return previousQuery.serializedQuery === serializedQuery;
   });
 
   return (match && match.promise) || null;
