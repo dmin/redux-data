@@ -10,7 +10,7 @@ const createQueryResolver = require('./adapter/createQueryResolver');
 export default {
 
   baseUrl: '',
-
+  format: undefined,
 
   handleError(error) {
     if (error.status === 422) {
@@ -93,9 +93,7 @@ export default {
   */
   queryRecords(query) {
     return createQueryResolver({
-      baseUrl: this.baseUrl,
-      pluralName: this.pluralName,
-      format: 'json',
+      adapter: this,
       parseResponseBody: (adapter, body) => body[adapter.pluralName], // TODO docs: this gets parsed JSON (from superagent)
     }).resolve(query);
   },
@@ -103,9 +101,7 @@ export default {
   // TODO remove when cache no longer relies on checking URLs
   queryUrl(adapter, query) {
     return createQueryResolver({
-      baseUrl: this.baseUrl,
-      pluralName: this.pluralName,
-      format: 'json',
+      adapter: this,
       parseResponseBody: (adapter, body) => body[adapter.pluralName],
     }).url(adapter, query);
   },

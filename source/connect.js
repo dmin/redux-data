@@ -273,7 +273,6 @@ export default function connect(
           const recordsPromise = (
             // TODO can 'request' be replaced with 'fetch' (would need to use polyfill)?
             adapter.queryRecords(query)
-              .then(records => records.map(adapter.formatRecordForClient))
               .then(records => {
                 return records.map(record => {
                   return typeCastFields(this.schema, query.target, record);

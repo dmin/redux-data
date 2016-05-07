@@ -5,45 +5,44 @@ const _request = require('../request').default; // TODO use fetch?
 
 class QueryResolver {
   constructor({
-    baseUrl,
-    pluralName,
-    format,
+    adapter,
     parseResponseBody,
   }) {
     // TODO assert arguments
     // TODO common assert for accepting name args with object
-    this.baseUrl = baseUrl;
-    this.pluralName = pluralName;
-    this.format = `.${format}` || '';
-    this._parseResponseBody = parseResponseBody.bind(null, this);
+    this._adapter = adapter;
+    this._parseResponseBody = parseResponseBody.bind(null, this._adapter);
   }
 
   resolve(query, computeUrl = _computeUrl, request = _request) {
-    const url = computeUrl(this, query);
-    return request(url, 'GET').then(this._parseResponseBody);
+    const url = computeUrl(this._adapter, query);
+    return request(url, 'GET')
+      .then(this._parseResponseBody)
+      .then(records => records.map(this._adapter.formatRecordForClient));
   }
 
   // TODO remove this function when checking the cache no longer relies on comparing URLS
-  url(adapter, query) {
-    return _computeUrl(adapter, query);
+  url(_, query) {
+    return _computeUrl(this._adapter, query);
   }
 }
 
 
 function _computeUrl(adapter, query) {
+  const format = adapter.format ? `.${adapter.format}` : '';
   const where = query.where ? _whereQueryString(query.where) : '';
   const queryStringPrep = `${where}`;
   const queryString = queryStringPrep ? `?${queryStringPrep}` : '';
 
   // TODO extract all this logic to adapter so user can have complete control over how urls are built
-  const preparedUrl = `${adapter.baseUrl}/${adapter.pluralName}${adapter.format}${queryString}`;
+  const preparedUrl = `${adapter.baseUrl}/${adapter.pluralName}${format}${queryString}`;
 
   if (process.env.NODE_ENV !== 'production') {
     // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
     if (preparedUrl.length > 2048) {
       // TODO centralize warnings
       // TODO should this be error?
-      console.warn('REDUX-DATA: Query produced a URL longer than 2048 characters. This may cause problems in older browsers (Internet Explorer).');
+      console.warn('REDUX-DATA ADAPTER: Query produced a URL longer than 2048 characters. This may cause problems in older browsers (Internet Explorer).');
     }
   }
 
