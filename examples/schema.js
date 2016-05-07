@@ -7,7 +7,7 @@ import { defaultAdapter } from '../source/index';
 
 export default {
 
-  $adapter: defaultAdapter,
+  $adapter: Object.assign({}, defaultAdapter, { format: 'json' }),
 
   items: {
 
