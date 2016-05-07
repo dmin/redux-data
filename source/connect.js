@@ -259,7 +259,7 @@ export default function connect(
         const adapter = this.adapterFor(query.target);
 
         // TODO currently the adapter is responsible for formatting field names for the server, should this be done by redux-data?
-        const url = adapter.queryRecords.url(adapter, query);
+        const url = adapter.queryUrl(adapter, query);
 
         // TODO: Returns a promise or undefined
         const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, url);
@@ -272,8 +272,7 @@ export default function connect(
 
           const recordsPromise = (
             // TODO can 'request' be replaced with 'fetch' (would need to use polyfill)?
-            request(url, 'GET')
-              .then(responseBody => adapter.queryRecords.responseBody(adapter, responseBody))
+            adapter.queryRecords(query)
               .then(records => records.map(adapter.formatRecordForClient))
               .then(records => {
                 return records.map(record => {

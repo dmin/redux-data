@@ -2,6 +2,8 @@ const camelCase = require('lodash.camelcase');
 const snakeCase = require('lodash.snakeCase');
 const entries = require('babel-runtime/core-js/object/entries').default;
 
+const createQueryResolver = require('./adapter/createQueryResolver');
+
 // TODO how to handle urls for nested resources in rails/similar apps
 // TODO simple config that defines what capabilities a server has
 // TODO turn this into a generic REST adapter, use ember-data's REST adapter as reference point
@@ -89,52 +91,22 @@ export default {
     TODO this property is not consistent with updateRecord, createRecord, deleteRecord
     TODO question: queryRecordsURL in an adapter is responsible for tranlating client field names to server field names, can this task be moved to redux-data?
   */
-  queryRecords: {
-    url(adapter, query) {
-      const where = query.where ? whereQueryString(query.where) : '';
-      const queryStringPrep = `${where}`;
-      const queryString = queryStringPrep ? `?${queryStringPrep}` : '';
-
-      // TODO extract all this logic to adapter so user can have complete control over how urls are built
-      const preparedUrl = `${adapter.baseUrl}/${adapter.pluralName}.json${queryString}`;
-
-      if (process.env.NODE_ENV !== 'production') {
-        // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-        if (preparedUrl.length > 2048) {
-          // TODO centralize warnings
-          // TODO should this be error?
-          console.warn('REDUX-DATA: Query produced a URL longer than 2048 characters. This may cause problems in older browsers (Internet Explorer).');
-        }
-      }
-
-      return preparedUrl;
-    },
-    responseBody: (adapter, body) => body[adapter.pluralName],
+  queryRecords(query) {
+    return createQueryResolver({
+      baseUrl: this.baseUrl,
+      pluralName: this.pluralName,
+      format: 'json',
+      parseResponseBody: (adapter, body) => body[adapter.pluralName], // TODO docs: this gets parsed JSON (from superagent)
+    }).resolve(query);
   },
 
+  // TODO remove when cache no longer relies on checking URLs
+  queryUrl(adapter, query) {
+    return createQueryResolver({
+      baseUrl: this.baseUrl,
+      pluralName: this.pluralName,
+      format: 'json',
+      parseResponseBody: (adapter, body) => body[adapter.pluralName],
+    }).url(adapter, query);
+  },
 };
-
-function whereQueryString(criteria) {
-  /*
-    TODO this function expects validated criteria, make sure query validator is up to date, how can it be ensured that they stay in sync?
-    TODO: if making a ember-data compatable rest adapter the schema validator will need to prevent users from naming fields with query keywords like 'where' and 'limit'
-  */
-  const queryParams = entries(criteria).reduce((queryParams, [field, conditions]) => {
-    // TODO uri encoding?
-
-    if (typeof conditions !== 'object') {
-      // TODO Handle this case with a 'query extension' that translates the query into a standard format before it gets here
-      queryParams.push(`query[where][${snakeCase(field)}][equal]=${conditions}`);
-    }
-    else {
-      entries(conditions).forEach(([name, value]) => {
-        queryParams.push(`query[where][${snakeCase(field)}][${name}]=${value}`);
-      });
-    }
-
-    return queryParams;
-  }, []);
-
-  return queryParams.join('&');
-  // TODO log/warn length of url - config option to move to POST when too long?
-}
