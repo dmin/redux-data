@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect } from '../source/index';
 
-const Items = ({ items1, items2, firstItem }) => {
+const Items = ({ items1, items2, firstItem, firstItemCached }) => {
   return (
     <div>
       <h1>First Item</h1>
       <p>{firstItem.name}</p>
+
+      <h1>First Item Cached</h1>
+      <p>{firstItemCached.name}</p>
 
       <h1>Items</h1>
       <h2>Items 1</h2>
@@ -25,6 +28,7 @@ Items.propTypes = {
   items1: React.PropTypes.array.isRequired,
   items2: React.PropTypes.array.isRequired,
   firstItem: React.PropTypes.object.isRequired,
+  firstItemCached: React.PropTypes.object.isRequired,
 };
 
 export default connect(Items, {
@@ -45,6 +49,12 @@ export default connect(Items, {
     }),
 
     firstItem: _props => ({
+      target: 'items',
+      where: { id: '7' },
+      transform: 'first',
+    }),
+
+    firstItemCached: _props => ({
       target: 'items',
       where: { id: '7' },
       transform: 'first',
