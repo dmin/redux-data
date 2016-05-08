@@ -7,7 +7,10 @@ const defaultState = {
   recordsGroupedByType: {},
 };
 
-export default function createReducer(schema) {
+export default function createReducer(schema, adapter) {
+
+  schema.$adapter = adapter;
+
   const schemaReducer = createSchemaReducer(schema);
 
   return function reducer(state = defaultState, action) {

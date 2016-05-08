@@ -3,11 +3,7 @@
   TODO web based schema editor
 */
 
-import { defaultAdapter } from '../source/index';
-
 export default {
-
-  $adapter: Object.assign({}, defaultAdapter, { format: 'json' }),
 
   items: {
 
@@ -21,6 +17,10 @@ export default {
       { name: 'name', type: String },
       { name: 'quantity', type: Number }, // TODO also decimal type?
       // TODO support date types
+    ],
+
+    associations: [
+      { relation: 'hasMany', associatedType: 'usage' },
     ],
   },
 };
