@@ -3,8 +3,9 @@ import curry from 'lodash.curry';
 
 import whereSelector from './whereSelector';
 
+// TODO move this to the where function? (avoid looping through records again)
 const target = curry(
-  (target, recordsGroupedByType) => recordsGroupedByType[target]
+  (target, records) => records.filter(record => record.type === target)
 );
 
 const select = curry((selectedFields, records) => {
@@ -52,7 +53,7 @@ const transform = curry((transformation, records) => {
 
 // TODO can the result of running this be memoized, and only need to be re-run in the required records actually changed?
 // see https://github.com/Day8/re-frame/blob/a4de4651cebc4d298fe86395054a9d9f7c2f5d43/README.md#just-a-read-only-cursor
-export default function selectRecords(recordsGroupedByType, query) {
+export default function selectRecords(records, query) {
   return pipe(
     target(query.target),
     where(query.where),
@@ -60,5 +61,5 @@ export default function selectRecords(recordsGroupedByType, query) {
     offset(query.offset),
     limit(query.limit),
     transform(query.transform) // TODO where should this be in the chain? Or should it be completely outside the chain, and act on the query as a whole?
-  )(recordsGroupedByType);
+  )(records);
 }

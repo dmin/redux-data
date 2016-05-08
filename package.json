@@ -41,7 +41,7 @@
     "lodash.find": "^4.3.0",
     "lodash.flow": "^3.3.0",
     "lodash.snakecase": "^4.0.1",
-    "lodash.unionby": "^4.4.0",
+    "lodash.unionwith": "^4.3.0",
     "superagent": "^1.8.3"
   }
 }

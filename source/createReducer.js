@@ -13,7 +13,7 @@ export default function createReducer(schema) {
   return function reducer(state = defaultState, action) {
     return {
       queries: queriesReducer(state.queries, action),
-      recordsGroupedByType: recordsReducer(state.recordsGroupedByType, action),
+      records: recordsReducer(state.records, action),
       schema: schemaReducer(state.schema, action),
     };
   };

@@ -1,6 +1,6 @@
-import curry from 'lodash.curry';
+const curry = require('lodash.curry');
 
-export default curry((note, variable) => {
+module.exports = curry((note, variable) => {
   console.log(note, '::', variable);
   return variable;
 });
