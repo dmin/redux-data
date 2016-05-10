@@ -1,8 +1,7 @@
 const curry = require('lodash.curry');
 const entries = require('babel-runtime/core-js/object/entries').default;
 
-const os = (schema, config, object) => {
-  let warnings = [];
+const os = (schema, requiredProps, config, object, warnings = []) => {
 
   const warn = message => {
     warnings.push(message);
@@ -18,9 +17,11 @@ const os = (schema, config, object) => {
   });
 
   const validator = object => {
+    _checkRequiredProps(requiredProps, object, notify);
+
     entries(object).forEach(([key, value]) => {
       if (schema[key]) {
-        schema[key](value, notify(key));
+        schema[key](value, notify(key), warnings);
       }
       else {
         notify(null, `"${key}" is not a valid property`, true, true);
@@ -44,25 +45,37 @@ os.and = (...conditions) => {
 
 os.oneOf = (allowedValues, options = {}) => {
   return (value, notify) => {
-
-    const isDefined = value !== null && value !== undefined;
     const isAllowed = !allowedValues.some(allowedValue => allowedValue === value);
 
-    if (isDefined && isAllowed) {
+    if (_isDefined(value) && isAllowed) {
       const message = `must be one of: ${allowedValues}`;
-      notify(options.message || message, options.warn);
+      notify(options.message || message, options.warn, false);
     }
   };
 };
 
-
-os.required = (options = {}) => {
-  return (value, notify) => {
-    if (!value) {
-      const message = 'is required';
-      notify(message, options.warn);
+os.object = (value, options = {}) => {
+  return (value, notify, warnings) => {
+    if (_isDefined) {
+      if (typeof value !== 'object') {
+        const message = 'must be an object';
+        notify(message, options.warn, false);
+      }
     }
   };
 };
 
 module.exports = os;
+
+function _isDefined(value) {
+  return value !== null && value !== undefined;
+}
+
+function _checkRequiredProps(requiredKeys, object, notify) {
+  requiredKeys.forEach(({ key, warn }) => {
+    if (object[key] === undefined) {
+      const message = `The "${key}" property is required`;
+      notify(key, message, warn, true);
+    }
+  }, []);
+}
