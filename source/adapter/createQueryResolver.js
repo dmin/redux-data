@@ -14,12 +14,46 @@ class QueryResolver {
     this._parseResponseBody = parseResponseBody.bind(null, this._adapter);
   }
 
-  resolve(query, computeUrl = _computeUrl, request = _request) {
-    const url = computeUrl(this._adapter, query);
-    return request(url, 'GET')
-      .then(this._parseResponseBody)
-      .then(records => records.map(this._adapter.formatRecordForClient));
+  resolve(query, computeUrl = _computeUrl, request = _request, extractNestedQueries = _extractNestedQueries) {
+    const queries = extractNestedQueries(query);
+
+    return Promise.all(
+      queries.map(query => {
+        const url = computeUrl(this._adapter, query);
+        return request(url, 'GET')
+          .then(this._parseResponseBody)
+          .then(records => records.map(this._adapter.formatRecordForClient))
+          .then(records => records.map(record => Object.assign(record, { _type_: query.target }))); // TODO this should be combined with formating/normalizing/typecasting
+      })
+    ).then(recordGroups => recordGroups.reduce((flattened, records) => flattened.concat(records)));
   }
+}
+
+
+function _extractNestedQueries(query) {
+  if (!query.include) { return [query]; }
+
+  throw new Error('"include" clause not supported by this adapter.');
+
+  // const parentQuery = Object.keys(query).reduce((_parentQuery, key) => {
+  //   if (key === 'include') { return _parentQuery; }
+  //   else {
+  //     _parentQuery[key] = query[key];
+  //     return _parentQuery;
+  //   }
+  // }, {});
+  //
+  // const childQueriesCreators = values(query.include).map(childQuery => {
+  //   return parent => {
+  //     return Object.assign(
+  //       {},
+  //       {
+  //         target: childQuery.association,
+  //
+  //       }
+  //     );
+  //   };
+  // });
 }
 
 
