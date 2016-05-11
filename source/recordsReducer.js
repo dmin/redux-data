@@ -8,7 +8,8 @@ const recordComparator = (a, b) => a._type_ === b._type_ && a.id === b.id;
 module.exports = function (records = [], action) {
   switch (action.type) {
 
-    // TODO Create Record
+    case 'DATA_CREATE_RECORD':
+      return records.concat(action.record);
 
     case 'DATA_RECEIVE_REMOTE_RECORDS': // TODO rename to DATA_CREATE_RECORDS or DATA_ADD_RECORDS
       // TODO performance - persistant data structure would be nice here
@@ -16,10 +17,8 @@ module.exports = function (records = [], action) {
 
     case 'DATA_UPDATE_RECORD':
       // TODO need to enforce that data.id is included with update actions
-      const record = find(records, { type: action.recordType, id: action.record.id }) || {}; // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the store?
-      const updatedRecord = Object.assign({}, record, action.record); // TODO action.record should now be the full updated record, is there any need for this merge?
-
-      return unionWith([updatedRecord], records, recordComparator);
+      // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the store?
+      return unionWith([action.record], records, recordComparator);
 
     case 'DATA_DELETE_RECORD':
       // TODO Should we check to make sure the record user is trying to delete is actually in the store? should we still send request to server if its not?

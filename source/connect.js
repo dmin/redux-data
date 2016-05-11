@@ -63,7 +63,6 @@ export default function connect(
 
   class ReduxData extends React.Component {
     constructor(props, context) {
-      console.log(`ReduxData ${Component.name} constructor...`);
       super(props, context);
       this.state = { loading: true, error: false };
       this.store = context.store;
@@ -148,6 +147,7 @@ export default function connect(
       // TODO would it make sense to format field names and do value type casting in one step?
       .then(responseBody => adapter[`${mutationType}Record`].responseBody(adapter, responseBody))
       .then(adapter.formatRecordForClient)
+      .then(record => Object.assign(record, { _type_: recordType }))
       .then(typeCastRecordTypeFields)
 
       // Then update record in store
