@@ -63,6 +63,7 @@ export default function connect(
 
   class ReduxData extends React.Component {
     constructor(props, context) {
+      console.log(`ReduxData ${Component.name} constructor...`);
       super(props, context);
       this.state = { loading: true, error: false };
       this.store = context.store;
@@ -104,10 +105,13 @@ export default function connect(
       this.resolveQueries(queries);
 
       const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
-      const selector = state => recordsSelector(state._data_.records); // TODO it would be great to extract this knowledge of the redux store even further
+      this.selector = state => recordsSelector(state._data_.records); // TODO it would be great to extract this knowledge of the redux store even further
 
       // TODO can the dependency on react-redux.connect be extracted from this file?
-      this.ConnectedComponent = createReduxConnect(selector, Component);
+      this.ConnectedComponent = (
+        this.ConnectedComponent ||
+        createReduxConnect(state => this.selector(state), Component)
+      );
     }
 
 
