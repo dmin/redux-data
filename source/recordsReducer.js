@@ -16,8 +16,8 @@ module.exports = function (records = [], action) {
 
     case 'DATA_UPDATE_RECORD':
       // TODO need to enforce that data.id is included with update actions
-      const record = find(records, { id: action.data.id }) || {}; // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the store?
-      const updatedRecord = Object.assign({}, record, action.data);
+      const record = find(records, { type: action.recordType, id: action.record.id }) || {}; // TODO Would there ever be a circumstance other than an error where the record being updated would not be in the store?
+      const updatedRecord = Object.assign({}, record, action.record); // TODO action.record should now be the full updated record, is there any need for this merge?
 
       return unionWith([updatedRecord], records, recordComparator);
 
@@ -32,5 +32,5 @@ module.exports = function (records = [], action) {
 };
 
 // TODO create (single/multiple)
-// TODO update (single/multiple)
-// TODO destroy (single/multiple)
+// TODO update (multiple)
+// TODO destroy (multiple)
