@@ -31,7 +31,7 @@ import { render } from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 
 import schema from './schema'; // See instructions below
-import { createReducer } from 'redux-data';
+import { createReducer, defaultAdapter } from 'redux-data';
 
 import { Provider } from 'react-redux';
 
@@ -42,7 +42,7 @@ const combinedReducer = combineReducers({
   // -- Your other reducers here --
 
   // It's important that you use '_data_' as the property name
-  _data_: createReducer(schema),
+  _data_: createReducer(schema, defaultAdapter),
 });
 
 const store = createStore(combinedReducer);

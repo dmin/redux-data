@@ -9,6 +9,7 @@ const defaultState = {
 
 export default function createReducer(schema, adapter) {
 
+  adapter.registerTypeAdapters(schema);
   schema.$adapter = adapter;
 
   const schemaReducer = createSchemaReducer(schema);

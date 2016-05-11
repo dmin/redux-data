@@ -12,6 +12,14 @@ export default {
   baseUrl: '',
   format: undefined,
 
+  registerTypeAdapters(schema) {
+    this.typeAdapters = {};
+    entries(schema).forEach(([type, typeSchema]) => {
+      // TODO need to validate that typeSchema provides needed info
+      this.typeAdapters[type] = typeSchema.adapter;
+    });
+  },
+
   handleError(error) {
     if (error.status === 422) {
       // TODO not a pure function if it throws w/o catch
@@ -92,7 +100,8 @@ export default {
   */
   queryRecords(query) {
     return createQueryResolver({
-      adapter: this,
+      // TODO creating a 'custom made' adapter for each query here, not very elegant or performant.
+      adapter: Object.assign({}, this, this.typeAdapters[query.target]),
       parseResponseBody: (adapter, body) => body[adapter.pluralName], // TODO docs: this gets parsed JSON (from superagent)
     }).resolve(query);
   },

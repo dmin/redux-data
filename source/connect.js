@@ -78,6 +78,7 @@ export default function connect(
       }
 
       this.schema = this.store.getState()._data_.schema; // TODO better way of accessing schema
+      this.adapter = this.schema.$adapter;
     }
 
     componentWillMount() {
@@ -149,8 +150,8 @@ export default function connect(
       .then(record => {
         this.store.dispatch({
           type: `DATA_${mutationType.toUpperCase()}_RECORD`,
-          target: recordType, // TODO rename to recordType
-          data: record, // TODO rename to record
+          recordType,
+          record,
         });
 
         return record;
@@ -215,7 +216,8 @@ export default function connect(
       // errors to calling function, which user will have to deal with. Needs to be documented.
     }
 
-
+    // TODO remove this method in favor of this.adapter
+    // will need to update commands in adapter to use adapter.typeAdapters[target]
     adapterFor(recordType) {
       // TODO memoize this funtion
       // TODO can adapter be an instance of an adaper made for this record type, can avoid passing in recordType, since we're already creating an adapter on the fly in adapterFor
@@ -254,8 +256,6 @@ export default function connect(
           queries: previousQueries,
         } = this.store.getState()._data_;
 
-        const adapter = this.adapterFor(query.target);
-
         // TODO: Returns a promise or undefined
         const serializedQuery = JSON.stringify(query);
         const cachedOrPendingQuery = findCachedOrPendingQuery(previousQueries, serializedQuery);
@@ -268,7 +268,7 @@ export default function connect(
 
           const recordsPromise = (
             // TODO can 'request' be replaced with 'fetch' (would need to use polyfill)?
-            adapter.queryRecords(query)
+            this.adapter.queryRecords(query)
               .then(records => {
                 return records.map(record => {
                   return typeCastFields(this.schema, query.target, record);
