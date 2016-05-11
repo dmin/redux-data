@@ -240,7 +240,7 @@ export default function connect(
 
         if (process.env.NODE_ENV !== 'production') {
           const schemaManager = require('./createSchemaManager').default(this.schema);
-          const validateQuery = require('./validateQuery').default;
+          const validateQuery = require('./validateQuery');
           if (!validateQuery(query, schemaManager, queryName, Component.name)) { // TODO Function.name not supported by IE
             throw new Error('Invalid query');
           }

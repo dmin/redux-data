@@ -21,7 +21,7 @@
    - target/collection
 */
 
-export default function validateQuery(query, schemaManager, queryName, componentName) {
+module.exports = function validateQuery(query, schemaManager, queryName, componentName) {
   // TODO type check arguments or use Flow?
   if (typeof query !== 'object') { throw new Error('Expected query argument to be an object.'); }
   if (typeof schemaManager !== 'object') { throw new Error('Expected schemaManager argument to be an object.'); }
@@ -90,13 +90,9 @@ export default function validateQuery(query, schemaManager, queryName, component
           return false;
         }
 
-        /*
-          TODO Currently we only support simple equality check criteria.
-          Check to make sure each property of criteria is a valid field name
-          and each value is a valid type for the given field.
-        */
-
         return Object.entries(criteria).reduce((result, [key, value]) => {
+
+          // Verify that the field this critrion is operating on is listed in the schema
           const isValidField = schemaManager.isCollectionField(query.target, key);
           if (!isValidField) {
             messages.push({
@@ -106,13 +102,25 @@ export default function validateQuery(query, schemaManager, queryName, component
             return false;
           }
 
-          const isValidFieldType = schemaManager.isCollectionFieldType(query.target, key, value);
-          if (!isValidFieldType) {
-            messages.push({
-              type: 'error',
-              message: `"${value}" (a ${typeof value}) does not appear to be a valid type for the "${key}" field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for the component "${componentName}".`,
-            });
-            return false;
+
+          // 'Advanced' style conditions TODO docs
+          if (typeof value === 'object') {
+            /*
+              TODO Validate/Document advanced where conditions
+            */
+          }
+
+
+          // Simple 'equals' style condition TODO docs
+          else {
+            const isValidFieldType = schemaManager.isCollectionFieldType(query.target, key, value);
+            if (!isValidFieldType) {
+              messages.push({
+                type: 'error',
+                message: `"${value}" (a ${typeof value}) does not appear to be a valid type for the "${key}" field in the "${query.target}" collection. See the 'where' clause from the "${queryName}" query for the component "${componentName}".`,
+              });
+              return false;
+            }
           }
 
           return result;
@@ -139,4 +147,4 @@ export default function validateQuery(query, schemaManager, queryName, component
   messages.forEach(message => console[message.type](message.message));
 
   return isValid;
-}
+};
