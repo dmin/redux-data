@@ -62,15 +62,15 @@ module.exports = function validateQuery(query, schemaManager, queryName, compone
 
     limit: {
       isRequired: false,
-      warn() {
-        // TODO it would be great to give more information about which query needs to be fixed
-        // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
-        messages.push({
-          type: 'warn',
-          // TODO update message about default limit clause
-          message: `REDUX-DATA: You did not specify a 'limit' clause in the "${queryName}" query for the component "${componentName}".`,
-        });
-      },
+      // warn() {
+      //   // TODO it would be great to give more information about which query needs to be fixed
+      //   // TODO if the schema provides a default limit, should that be injected into the query before it's validated? If so, should 'limit' be required?
+      //   messages.push({
+      //     type: 'warn',
+      //     // TODO update message about default limit clause
+      //     message: `REDUX-DATA: You did not specify a 'limit' clause in the "${queryName}" query for the component "${componentName}".`,
+      //   });
+      // },
       type: type => typeof type === 'number',
     },
 
