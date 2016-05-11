@@ -77,7 +77,7 @@ export default {
       /*
         Each item of the array should be an object with two properties:
         - 'name' is the name of the field.
-        - 'type' is the field's data type, currently on String and Number
+        - 'type' is the field's data type, currently only String and Number
         are supported.
       */
       { name: 'id', type: String },
