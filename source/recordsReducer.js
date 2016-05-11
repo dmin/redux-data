@@ -24,7 +24,7 @@ module.exports = function (records = [], action) {
     case 'DATA_DELETE_RECORD':
       // TODO Should we check to make sure the record user is trying to delete is actually in the store? should we still send request to server if its not?
       // Is there ever a time you'd want to delete something through Redux-Data when its not in Redux-Data's record store slice?
-      return records.filter(record => record._type_ !== action.target && record.id !== action.data);
+      return records.filter(record => !(record._type_ === action.target && record.id === action.data));
 
     default:
       return records;
