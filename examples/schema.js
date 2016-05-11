@@ -18,9 +18,5 @@ export default {
       { name: 'quantity', type: Number }, // TODO also decimal type?
       // TODO support date types
     ],
-
-    associations: [
-      { relation: 'hasMany', associatedType: 'usage' },
-    ],
   },
 };
