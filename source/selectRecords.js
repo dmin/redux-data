@@ -5,7 +5,7 @@ import whereSelector from './whereSelector';
 
 // TODO move this to the where function? (avoid looping through records again)
 const target = curry(
-  (target, records) => records.filter(record => record.type === target)
+  (target, records) => records.filter(record => record._type_ === target)
 );
 
 const select = curry((selectedFields, records) => {
