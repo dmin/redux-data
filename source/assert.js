@@ -1,5 +1,7 @@
-export default function assert(assertion, message) {
+function assert(assertion, message) {
   if (!assertion) {
     throw new Error(`REDUX-DATA: ${message}`);
   }
 }
+
+module.exports = assert;

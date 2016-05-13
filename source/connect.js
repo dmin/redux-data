@@ -45,9 +45,10 @@ import request from './request';
 import typeCastFields from './typeCastFields';
 
 import curry from 'lodash.curry';
+const entries = require('babel-runtime/core-js/object/entries').default;
 
 if (process.env.NODE_ENV !== 'production') {
-  var assert = require('./assert').default;
+  var assert = require('./assert');
 }
 
 export default function connect(
@@ -242,7 +243,7 @@ export default function connect(
 
     // TODO dependency: requires _data_.queries property on state (which contains previous queries)
     resolveQueries(queries) {
-      const promisedQueries = Object.entries(queries).map(([queryName, query]) => {
+      const promisedQueries = entries(queries).map(([queryName, query]) => {
 
         if (process.env.NODE_ENV !== 'production') {
           const schemaManager = require('./createSchemaManager').default(this.schema);
