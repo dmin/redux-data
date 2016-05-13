@@ -1,5 +1,5 @@
 const camelCase = require('lodash.camelcase');
-const snakeCase = require('lodash.snakeCase');
+const snakeCase = require('lodash.snakecase');
 const entries = require('babel-runtime/core-js/object/entries').default;
 
 const createQueryResolver = require('./adapter/createQueryResolver');
