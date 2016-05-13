@@ -1,5 +1,5 @@
 const entries = require('babel-runtime/core-js/object/entries').default;
-const snakeCase = require('lodash.snakeCase');
+const snakeCase = require('lodash.snakecase');
 
 const _request = require('../request').default; // TODO use fetch?
 

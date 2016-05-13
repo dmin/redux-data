@@ -1,6 +1,6 @@
 {
   "name": "redux-data",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A library that works with redux to load data from your server.",
   "main": "build/index",
   "repository": "dmin/redux-data",
