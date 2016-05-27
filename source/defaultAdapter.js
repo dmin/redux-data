@@ -21,7 +21,7 @@ export default {
   },
 
   handleError(error) {
-    if (error.status === 422) {
+    if (error.status === 422) { // TODO assuming validation error, allow user to configure response code for this.
       // TODO not a pure function if it throws w/o catch
       if (!error.response.body.errors) {
         throw new Error('This adapter expects server responses with a http status code of 422 to include a JSON object with an errors property containing validation messages.');
@@ -33,6 +33,7 @@ export default {
       );
     }
 
+    console.error(error);
     // TODO: need to handle 404 not found errors
   },
 
@@ -89,7 +90,7 @@ export default {
     method: 'DELETE', // TODO or PUT?
     url: (adapter, recordId, _props) => `${adapter.baseUrl}/${adapter.pluralName}/${recordId}.json`,
     // TODO it be great to omit these if not needed.
-    requestBody: _ => _, //
+    requestBody: () => {}, //
     responseBody: _ => _,
   },
 

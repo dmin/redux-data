@@ -23,7 +23,7 @@
 
   TODO: memoize or otherwise save selector functions for queries so they don't have to be recreated (i.e. cache selector functions)
 
-  TODO: documentation might talk about dispatching actions to local or remote stores (and in the future there might be server side code to make this official)
+  TODO: documentation might talk about dispatching actions to local or remote stores (and in the future there might be server s`ide code to make this official)
 
   TODO DEFINE:
    - commands (description of mutation, does not need to be serializable)
@@ -164,7 +164,7 @@ export default function connect(
     }
 
 
-    deleteRecord(adapter, recordType, rawId, _rawPresetFields) {
+    deleteRecord(adapter, recordType, rawId, _rawPresetFields, thenFn) {
       const recordId = String(rawId);
 
       // Update record on server
@@ -172,9 +172,25 @@ export default function connect(
         adapter.deleteRecord.url(adapter, recordId, this.props),
         adapter.deleteRecord.method,
         adapter.deleteRecord.requestBody(adapter, recordId, this.props)
-      )
+      ).then(_ => {
 
-      .then(_ => {
+        /*
+          TODO This is a temp fix:
+          Without this special call the the 'thenFn' here the commoand's
+          then function (if supplied) will not be invoked until after the store
+          has updated and the changes have been flushed to react. This means that
+          if a component is displaying a record that is being deleted the react-
+          redux will update the component before the commands 'then' is called,
+          which will give an error since it's tring to render a record that
+          has been deleted. Need to rework how the async work in redux-data is
+          performed.
+
+          The ideal case is that the store gets updated with the deletion (or
+          creation or update), but that change to the store does not trigger
+          react-redux to update components (only when there is a then)
+        */
+        if (thenFn) { thenFn(); }
+
         this.store.dispatch({
           type: 'DATA_DELETE_RECORD',
           target: recordType, // TODO rename to recordType
@@ -202,7 +218,7 @@ export default function connect(
         assert(adapter[`${actionName}Record`], `The adapter for "${target}" does not support the "${actionName}" mutation. See the "${commandName}" command for "${Component.name}"`);
       }
 
-      return this[`${actionName}Record`](adapter, target, data, presetFields)
+      return this[`${actionName}Record`](adapter, target, data, presetFields, command.then) // TODO remove command.then from arguments list, see this.deleteRecord
         .then(record => {
           // TODO should there be a way to tell Redux-Data not to trigger a "store changed" event if the route(or something else) is going to be changing anyway? The goal would be to reduce render churn, is this happening?
           command.then ? command.then(record) : undefined;
@@ -300,6 +316,7 @@ export default function connect(
 
       Promise.all(promisedQueries)
         .then(() => this.setState({ loading: false }))
+        .catch(error => console.error(error))
         .catch(error => this.setState({ error }));
     }
 
@@ -317,6 +334,7 @@ export default function connect(
       else if (this.state.error) {
         // TODO retry functionality? automatic? manual?
         // TODO pass in error message (different in dev/prod?)
+        console.log(this.state.error);
         return <Error />;
       }
       else {
