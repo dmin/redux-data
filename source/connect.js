@@ -107,10 +107,23 @@ export default function connect(
       const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
       this.selector = state => recordsSelector(state._data_.records); // TODO it would be great to extract this knowledge of the redux store even further
 
+      /*
+        Under certain circumstances, React-Redux will not update if it
+        determines that the props passed to a component will not affect the
+        result of the mapStateToProps function. It makes this determination by
+        checking if mapStateToProps takes a second argument. Since the
+        mapStateToProps function created here does depend on props (as supplied
+        to the queries) we need to define a second (unused) argument, "_",
+        to force React-Redux to update appropriately.
+      */
+      const mapStateToProps = (state, _) => {
+        return this.selector(state);
+      };
+
       // TODO can the dependency on react-redux.connect be extracted from this file?
       this.ConnectedComponent = (
         this.ConnectedComponent ||
-        createReduxConnect(state => this.selector(state), Component)
+        createReduxConnect(mapStateToProps, Component)
       );
     }
 
