@@ -56,6 +56,8 @@ export default {
 
   formatRecordForClient(record) {
     return entries(record).reduce((formattedRecord, [key, value]) => {
+      // TODO need to document that nulls are converted to undefineds
+      value = value === null ? undefined : value;
       return Object.assign(
         {},
         formattedRecord,
