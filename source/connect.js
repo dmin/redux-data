@@ -59,6 +59,7 @@ export default function connect(
     Loading = _Loading,
     Error = _Error,
     createReduxConnect = (selector, Component) => reduxConnect(selector)(Component),
+    placeholder,
   }
 ) {
 
@@ -351,6 +352,14 @@ export default function connect(
         return <Error />;
       }
       else {
+        // Check if placeholder should be rendered
+        if (placeholder) {
+          // TODO this check forces an extra invokation of the selector function
+          const PlaceholderComponent = placeholder(this.selector(this.store.getState()));
+          if (PlaceholderComponent) {
+            return <PlaceholderComponent />;
+          }
+        }
         // TODO: check for props that conflict with data attributes
         // TODO: would it be more performat to move the creation of ConnectedComponent to a memoized method?
         return <this.ConnectedComponent {...this.props} {...this.commands} />;

@@ -48,6 +48,13 @@ export default connect(Items, {
       limit: 4,
     }),
 
+    noItems: _props => ({
+      target: 'items', // TODO { items: 34 } automatically returns a record/not a collection
+      select: ['id'],
+      where: { name: 'Monkey' },
+      limit: 4,
+    }),
+
     firstItem: _props => ({
       target: 'items',
       where: { id: '7' },
@@ -60,4 +67,6 @@ export default connect(Items, {
       transform: 'first',
     }),
   },
+
+  placeholder: results => !results.noItems.length && (() => <div>Placeholder</div>),
 });
