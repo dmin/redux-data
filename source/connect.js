@@ -317,7 +317,7 @@ export default function connect(
                 });
               })
               // TODO unless I catch errors, the promises will swallow all errors
-              .catch(e => console.log(e))
+              .catch(e => { throw e; })
           );
 
           // Adds query to list of pending/cached queries
@@ -330,8 +330,7 @@ export default function connect(
 
       Promise.all(promisedQueries)
         .then(() => this.setState({ loading: false }))
-        .catch(error => console.error(error))
-        .catch(error => this.setState({ error }));
+        .catch(error => { throw error; });
     }
 
     // TODO should component update
@@ -348,7 +347,6 @@ export default function connect(
       else if (this.state.error) {
         // TODO retry functionality? automatic? manual?
         // TODO pass in error message (different in dev/prod?)
-        console.log(this.state.error);
         return <Error />;
       }
       else {
