@@ -40,7 +40,7 @@ import _Error from './Error';
 import { connect as reduxConnect } from 'react-redux';
 import applyPropsToOperations from './applyPropsToOperations';
 import findCachedOrPendingQuery from './findCachedOrPendingQuery';
-import buildSelector from './buildSelector';
+import createQueryGroupSelector from './createQueryGroupSelector';
 import request from './request';
 import typeCastFields from './typeCastFields';
 
@@ -105,7 +105,7 @@ export default function connect(
       const queries = applyPropsToOperations(queryDescriptors, props);
       this.resolveQueries(queries);
 
-      const recordsSelector = buildSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
+      const recordsSelector = createQueryGroupSelector(queries); // TODO check if selectors actually need to be rebuilt/can we just memoize?
       this.selector = state => recordsSelector(state._data_.records); // TODO it would be great to extract this knowledge of the redux store even further
 
       /*

@@ -1,7 +1,7 @@
 const test = require('tape');
-const buildSelector = require('../buildSelector');
+const createQueryGroupSelector = require('../createQueryGroupSelector');
 
-test('buildSelector', assert => {
+test('createQueryGroupSelector', assert => {
   const queries = { query1: 'FAKE1', query2: 'FAKE2' };
   const recordsProperty = 'FAKE3';
   const selectRecords = (groupedRecords, query) => `${groupedRecords}-${query}`;
@@ -10,7 +10,7 @@ test('buildSelector', assert => {
     'FAKE3': 'FAKE4',
   };
 
-  const selector = buildSelector(queries, recordsProperty, selectRecords);
+  const selector = createQueryGroupSelector(queries, recordsProperty, selectRecords);
 
   const actual = selector(state);
   const expected = {

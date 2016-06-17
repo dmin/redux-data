@@ -1,7 +1,7 @@
 import _selectRecords from './selectRecords';
 
 /*
-  # buildSelector
+  # createQueryGroupSelector
   Returns a function that, when applied to a state object, returns an object
   with the same shape as the queries param, but with each property value the
   result of its respective query.
@@ -14,7 +14,7 @@ import _selectRecords from './selectRecords';
 
   TODO: check types (dev only for better error messages)
 */
-export default function buildSelector(
+export default function createQueryGroupSelector(
   queries,
   selectRecords = _selectRecords
 ) {
