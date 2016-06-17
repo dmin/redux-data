@@ -168,7 +168,7 @@ export default function connect(
       // Then update record in store
       .then(record => {
         this.store.dispatch({
-          type: `DATA_${mutationType.toUpperCase()}_RECORD`,
+          type: `redux-data/${mutationType.toUpperCase()}_RECORD`,
           recordType,
           record,
         });
@@ -206,7 +206,7 @@ export default function connect(
         if (thenFn) { thenFn(); }
 
         this.store.dispatch({
-          type: 'DATA_DELETE_RECORD',
+          type: 'redux-data/DELETE_RECORD',
           target: recordType, // TODO rename to recordType
           data: recordId, // TODO rename to record
         });
@@ -311,7 +311,7 @@ export default function connect(
               })
               .then(records => {
                 this.store.dispatch({
-                  type: 'DATA_RECEIVE_REMOTE_RECORDS',
+                  type: 'redux-data/RECEIVE_REMOTE_RECORDS',
                   target: query.target,
                   records,
                 });
