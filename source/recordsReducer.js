@@ -11,7 +11,7 @@ module.exports = function (records = [], action) {
       // TODO run validations and throw error if invalid? Would help ensure no invalid data gets into store. Validation would need to run on the form submission as well to give error messages to users, this would be a backup. Or should we rely on the server for this?
       return records.concat(action.record);
 
-    case 'redux-data/RECEIVE_REMOTE_RECORDS': // TODO rename to redux-data/CREATE_RECORDS or redux-data/ADD_RECORDS
+    case 'redux-data/CREATE_RECORDS':
       // TODO performance - persistant data structure would be nice here
       return unionWith(action.records, records, recordComparator);
 
@@ -30,6 +30,5 @@ module.exports = function (records = [], action) {
   }
 };
 
-// TODO create (single/multiple)
 // TODO update (multiple)
 // TODO destroy (multiple)

@@ -311,7 +311,7 @@ export default function connect(
               })
               .then(records => {
                 this.store.dispatch({
-                  type: 'redux-data/RECEIVE_REMOTE_RECORDS',
+                  type: 'redux-data/CREATE_RECORDS',
                   target: query.target,
                   records,
                 });
