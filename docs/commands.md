@@ -1,6 +1,6 @@
 # Commands
 
-This page describes the format of command objects. If you haven't already, you might want to read about how to pass command objects to Redux-Data in the [documentation for `connect()`](/docs/connect.md).
+This page describes the format of command objects. If you haven't already, you may wish to read about how to pass command objects to Redux-Data in the [documentation for `connect()`](/docs/connect.md).
 
 ## Type of Commands
 Redux-Data currently supports three types of commands: create, update, and delete. All command objects require at least two properties: `target`, and `action`.
@@ -16,7 +16,7 @@ Each type of command has slightly different features, which are described in mor
 
 ### Create
 #### Format
-The create command, as you might expect, creates a new record in the store. Along with the `target` and `action` properties, command objects accept two other properties: `preset`, and `then`.
+The create command, as you might expect, creates a new record in the store. In addition to the `target` and `action` properties, command objects may contain two other properties: `preset`, and `then`.
 
 ```javascript
 {
@@ -24,11 +24,10 @@ The create command, as you might expect, creates a new record in the store. Alon
   action: 'create',
 
   /*
-    The 'preset' property accepts a value that is an object representing
-    fields of a record that will be merged together with the fields you
-    pass when invoking the command's function. For instance if you'd like
-    all items created with this command to have a 'quantity' of '0' you
-    can use the following:
+    The 'preset' property accepts an object representing fields of a record
+    that will be merged together with the fields you pass when invoking the
+    command's function. For instance if you'd like all items created with this
+    command to have a 'quantity' of '0' you can use the following:
   */
   preset: {
     quantity: 0,
