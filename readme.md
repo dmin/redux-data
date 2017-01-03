@@ -58,7 +58,7 @@ render(
 ### Schema
 Your schema tells Redux-Data the types of records your application uses, as well as information about how to fetch and mutate those records located on your server.
 
-A Redux-Data schema is simply an object. Each property of the schema object is the name of a record type, and the corresponding value provides information about the record type. The special `$adapter` property of the schema identifies the application wide default adapter (more information on adapters in a moment). The schema for our example installation is as follows:
+A Redux-Data schema is simply an object. Each property key of the schema object is the name of a record type, and the corresponding value provides information about the record type. The special `$adapter` property of the schema identifies the application wide default adapter (more information on adapters in a moment). The schema for our example installation is as follows:
 
 ```javascript
 // schema.js
