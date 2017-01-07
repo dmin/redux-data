@@ -271,7 +271,18 @@ export default function connect(
       }
     }
 
-    // TODO dependency: requires _data_.queries property on state (which contains previous queries)
+    /*
+      DEPENDENCIES:
+      [ARG] queries
+      this.schema
+      Component.name
+      this.store, this.store._data_, this.store._data_.queries
+      findCachedOrPendingQuery
+      this.adapter.queryRecords
+      this.store.dispatch
+      typeCastFields
+      this.setState
+    */
     resolveQueries(queries) {
       const promisedQueries = entries(queries).map(([queryName, query]) => {
 
